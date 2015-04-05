@@ -21,7 +21,7 @@ Priority Thread::getPriority() {
     return prio;
 }
 
-static void Thread::RemoveID(int toRemove) {
+void Thread::RemoveID(int toRemove) {
     unsigned int i;
     for (i = 0 ; i < idList.size() ; i++)
     {
@@ -37,7 +37,7 @@ static void Thread::RemoveID(int toRemove) {
     }
 }
 
-static int Thread::NewID() {
+int Thread::NewID() {
     int temp = idList[0];
     idList.erase(0);
     return temp;

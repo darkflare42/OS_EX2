@@ -4,6 +4,10 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>PriorityQueue.h</itemPath>
+      <itemPath>Thread.h</itemPath>
+      <itemPath>ThreadUtils.h</itemPath>
+      <itemPath>uthreads.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -12,6 +16,8 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>PriorityQueue.cpp</itemPath>
+      <itemPath>Thread.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -36,7 +42,19 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="PriorityQueue.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="PriorityQueue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thread.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Thread.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ThreadUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="uthreads.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -59,7 +77,19 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="PriorityQueue.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="PriorityQueue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thread.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Thread.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="ThreadUtils.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="uthreads.h" ex="false" tool="3" flavor2="0">
       </item>
     </conf>
   </confs>

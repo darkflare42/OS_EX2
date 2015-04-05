@@ -8,7 +8,7 @@
 #ifndef THREAD_H
 #define	THREAD_H
 #include "ThreadUtils.h"
-#include <vector>
+#include <list>
 using namespace std;
 
 class Thread {
@@ -18,16 +18,13 @@ public:
     virtual ~Thread();
     Priority getPriority();
     
-    
 private:
     static void RemoveID(int toRemove);
     static int NewID();
     
-    static vector<int> idList;
     Priority prio;
-    
-    
 };
 
+static std::list<int> idList;
 #endif	/* THREAD_H */
 

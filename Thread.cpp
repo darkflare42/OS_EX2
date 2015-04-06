@@ -62,3 +62,10 @@ int Thread::getID(){
     return _id;
 }
 
+void Thread::setState(State stateToSet){
+    _currState = stateToSet;
+}
+
+State Thread::getState(){
+    return _currState;
+}

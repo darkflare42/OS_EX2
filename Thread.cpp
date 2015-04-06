@@ -8,6 +8,7 @@
 #include "Thread.h"
 #include <algorithm>
 
+
 Thread::Thread() {
 }
 
@@ -22,24 +23,24 @@ Priority Thread::getPriority() {
 }
 
 void Thread::RemoveID(int toRemove) {
-    unsigned int i;
-    for (i = 0 ; i < idList.size() ; i++)
+    std::list<int>::iterator i = idList.begin();
+    for ( ; i != idList.end() ; i++)
     {
-        if (toRemove < idList[i])
+        if (toRemove < *i)
         {
             idList.insert(i, toRemove);
             break;
         }
     }
-    if (i == idList.size())
+    if (i == idList.end())
     {
         idList.push_back(toRemove);
     }
 }
 
 int Thread::NewID() {
-    int temp = idList[0];
-    idList.erase(0);
+    int temp = idList.front();
+    idList.erase(idList.begin());
     return temp;
 }
 

@@ -29,7 +29,8 @@ void Scheduler::startTimer(){
 }
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
-    //TODO: Return pointer of the thread according to the tid
+    std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
+    return temp;
 }
 
 

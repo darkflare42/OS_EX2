@@ -27,11 +27,14 @@ class Scheduler {
         std::shared_ptr<Thread> getThread(int tid);
         
         //Maybe all these need to be references (& after the shared_ptr)
+        int spawnThread(void (*f)(void));
         int resumeThread(shared_ptr<Thread> thread);
         int suspendThread(shared_ptr<Thread> thread);
         int terminateThread(shared_ptr<Thread> thread);
         
         void startTimer();
+        void changeThreadQueue(shared_ptr<Thread> thread, State newState);
+        
         
         int allocateID();
         int getRunningThreadID();

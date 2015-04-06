@@ -21,12 +21,16 @@ public:
     
     int getTotalQuantums();
     int getID();
+    State getState();
+    void setState(State stateToSet);
+    static int NewID();
 private:
     static void RemoveID(int toRemove);
-    static int NewID();
+    
     int _id;
     int _totalQuantums;
     Priority _prio;
+    State _currState;
 };
 
 static std::list<int> idList;

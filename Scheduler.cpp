@@ -19,6 +19,7 @@ int Scheduler::init(int quantum){
         setTimerIntervals(quantum);
         _runningThreadID = 0; //Set the running ID Thread to 0
         _threadMap.insert({0, shared_ptr<Thread>(new Thread())});
+        _threadMap[0]->setState(Running);
         //startTimer
     }
     catch(...){
@@ -29,7 +30,8 @@ int Scheduler::init(int quantum){
 }
 
 int Scheduler::allocateID(){
-    return Thread.getID();
+    //return NewID();
+    return Thread::NewID();
 }
 
 void Scheduler::startTimer(){
@@ -37,22 +39,65 @@ void Scheduler::startTimer(){
 }
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
-    return _threadMap[tid];
+    shared_ptr<Thread> thread = nullptr;
+    try{
+        thread = _threadMap[tid];
+        //TODO: Check if throws exception when it's not there
+    }
+    catch(...){
+        return nullptr;
+    }
+    return thread;
     //std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
     //return temp;
 }
 
+int Scheduler::spawnThread(void(*f)()){
+    int newID = Thread::NewID();
+    if(newID == FAIL){
+        return FAIL;
+    }
+    _threadMap.insert({newID, shared_ptr<Thread>(new Thread())});
+    _readyQueue.Enqueue(_threadMap[newID]);
+}
 
 int Scheduler::resumeThread(shared_ptr<Thread> thread){
+    
+    //Can resume a thread only if it is suspended
+    if(thread->getState() == Suspended)
+    {
+        
+        changeThreadQueue(thread, Ready);
+    }
     return OK;
 }
 
 int Scheduler::suspendThread(shared_ptr<Thread> thread){
+    //Sanity check
+    if(thread->getState() == Suspended){
+        return OK;
+    }
+    
+    changeThreadQueue(thread, Suspended);
+    
+    //TODO: Check what is needed to happen if a thread suspends itself!
+    
+    
     return OK;
 }
 
 int Scheduler::terminateThread(shared_ptr<Thread> thread){
+    
+    //TODO: add stuff
+    _threadMap.erase(thread->getID());
+    
     return OK;
+}
+
+void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
+    //TODO: Implement
+    //Should move the thread from it's current queue to the new state queue
+    //Also should update it's current state if no errors occurred
 }
 
 int Scheduler::getRunningThreadID(){

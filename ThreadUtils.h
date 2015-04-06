@@ -15,10 +15,11 @@ enum ERRCODE{
            
 };
 
-enum STATE{
+enum State{
     Running = 0,
-    Suspended = 1,
-    Terminated = 2,
+    Ready = 1,
+    Suspended = 2,
+    Terminated = 3, //Maybe unnecessary
 };
 
 #define MAIN_THREAD_ID 0

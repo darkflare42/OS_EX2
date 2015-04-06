@@ -10,17 +10,27 @@
 #include <list>
 
 
-Thread::Thread() {
+Thread::Thread(int totalQuantums, Priority prio, void (*entry)(void)) : 
+    _totalQuantums(totalQuantums), _prio(prio), _entry(entry) {
 }
 
 Thread::Thread(const Thread& orig) {
 }
 
 Thread::~Thread() {
+    RemoveID(_id);
 }
 
 Priority Thread::getPriority() {
     return _prio;
+}
+
+
+void Thread::InitiateIDList() {
+    for (int i = 0 ; i < MAX_THREAD_NUM ; i++)
+    {
+        idList.emplace_back(i);
+    }
 }
 
 void Thread::RemoveID(int toRemove) {

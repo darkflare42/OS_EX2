@@ -11,7 +11,7 @@
 #include "ThreadUtils.h"
 #include "Thread.h"
 #include <memory>
-#include <queue>
+#include <list>
 
 class PriorityQueue {
 public:
@@ -20,11 +20,12 @@ public:
     virtual ~PriorityQueue();
     void Enqueue(std::shared_ptr<Thread> threadPtr);
     std::shared_ptr<Thread> Dequeue();
+    void Dequeue(std::shared_ptr<Thread> thread);
     
 private:
-    queue<std::shared_ptr<Thread>> redQ;
-    queue<std::shared_ptr<Thread>> orangeQ;
-    queue<std::shared_ptr<Thread>> greenQ;
+    std::list<std::shared_ptr<Thread>> redQ;
+    std::list<std::shared_ptr<Thread>> orangeQ;
+    std::list<std::shared_ptr<Thread>> greenQ;
 };
 
 #endif	/* PRIORITYQUEUE_H */

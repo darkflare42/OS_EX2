@@ -14,23 +14,25 @@ using namespace std;
 
 class Thread {
 public:
-    Thread();
+    Thread(int totalQuantums, Priority prio, void (*entry)(void));
     Thread(const Thread& orig);
-    virtual ~Thread();
+    ~Thread();
     Priority getPriority();
     
     int getTotalQuantums();
     int getID();
     State getState();
     void setState(State stateToSet);
+    static void InitiateIDList();
     static int NewID();
 private:
     static void RemoveID(int toRemove);
     
     int _id;
-    int _totalQuantums;
+    int _totalQuantums; // TODO what is this?
     Priority _prio;
     State _currState;
+    void (*_entry)(void);
 };
 
 static std::list<int> idList;

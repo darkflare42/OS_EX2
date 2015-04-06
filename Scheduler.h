@@ -43,7 +43,6 @@ class Scheduler {
         struct itimerval _tv;
         PriorityQueue _readyQueue;
         PriorityQueue _suspendedQueue;
-        PriorityQueue _sleepingQueue;
         std::shared_ptr<Thread> _runningThread; //TODO can be deleted?
         int _runningThreadID;
         int _totalQuantums;

@@ -17,7 +17,8 @@ int Scheduler::init(int quantum){
     try{
         
         setTimerIntervals(quantum);
-        _runningThreadID = 0; //Set the running ID Thread to 0
+        Thread::InitiateIDList(); // TODO requires a debug.
+        _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
         _threadMap.insert({0, shared_ptr<Thread>(new Thread())});
         _threadMap[0]->setState(Running);
         //startTimer
@@ -95,9 +96,31 @@ int Scheduler::terminateThread(shared_ptr<Thread> thread){
 }
 
 void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
-    //TODO: Implement
-    //Should move the thread from it's current queue to the new state queue
-    //Also should update it's current state if no errors occurred
+    //TODO: debug.
+    //Assumes relocation of thread is always successful and updates the correct state.
+    switch(thread->getState()) {
+        case Running:
+            break;
+        case Ready:
+            _readyQueue.Dequeue(thread);
+            break;
+        case Suspended:
+            _suspendedQueue.Dequeue(thread);
+            break;
+    }
+    
+    switch (newState) {
+        case Running:
+            break;
+        case Ready:
+            _readyQueue.Enqueue(thread);
+            break;
+        case Suspended:
+            _suspendedQueue.Enqueue(thread);
+            break;
+    }
+    
+    thread->setState(newState);
 }
 
 int Scheduler::getRunningThreadID(){

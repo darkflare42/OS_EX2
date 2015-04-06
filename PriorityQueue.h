@@ -10,21 +10,22 @@
 
 #include "ThreadUtils.h"
 #include "Thread.h"
+#include <memory>
 #include <queue>
-using namespace std;
 
 class PriorityQueue {
 public:
     PriorityQueue();
     PriorityQueue(const PriorityQueue& orig);
     virtual ~PriorityQueue();
-    void Enqueue(Thread thread); // TODO maybe const reference?
-    Thread Dequeue();
+    void Enqueue(std::shared_ptr<Thread> threadPtr);
+    std::shared_ptr<Thread> Dequeue();
     
 private:
-    queue<Thread> redQ;
-    queue<Thread> orangeQ;
-    queue<Thread> greenQ;
+    queue<std::shared_ptr<Thread>> redQ;
+    queue<std::shared_ptr<Thread>> orangeQ;
+    queue<std::shared_ptr<Thread>> greenQ;
 };
 
 #endif	/* PRIORITYQUEUE_H */
+

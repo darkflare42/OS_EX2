@@ -14,6 +14,7 @@
 #include "Thread.h"
 #include "ThreadUtils.h"
 #include "PriorityQueue.h"
+#include <map>
 
 #define DEFAULT_QUANTUM 2
 
@@ -24,6 +25,7 @@ class Scheduler {
         
         int init(int quantum);
         std::shared_ptr<Thread> getThread(int tid);
+        
         //Maybe all these need to be references (& after the shared_ptr)
         int resumeThread(shared_ptr<Thread> thread);
         int suspendThread(shared_ptr<Thread> thread);
@@ -41,6 +43,8 @@ class Scheduler {
         PriorityQueue _sleepingQueue;
         std::shared_ptr<Thread> _runningThread;
         int _totalQuantums;
+        
+        std::map<int, Thread> _threadMap;
         
         void setTimerIntervals(int quantums);
     

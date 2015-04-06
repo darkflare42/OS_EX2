@@ -16,19 +16,19 @@ PriorityQueue::PriorityQueue(const PriorityQueue& orig) {
 PriorityQueue::~PriorityQueue() {
 }
 
-void PriorityQueue::Enqueue(Thread thread) {
-    switch(thread.getPriority()) {
-        case RED: redQ.push(thread);
+void PriorityQueue::Enqueue(std::shared_ptr<Thread> threadPtr) {
+    switch(threadPtr->getPriority()) {
+        case RED: redQ.push(threadPtr);
         break;
-        case ORANGE: orangeQ.push(thread);
+        case ORANGE: orangeQ.push(threadPtr);
         break;
-        case GREEN: greenQ.push(thread);
+        case GREEN: greenQ.push(threadPtr);
         break;
     }
 }
 
-Thread PriorityQueue::Dequeue(){
-    Thread temp;
+std::shared_ptr<Thread> PriorityQueue::Dequeue(){
+    std::shared_ptr<Thread> temp;
     if (redQ.size() > 0) {
         temp = redQ.front();
         redQ.pop();

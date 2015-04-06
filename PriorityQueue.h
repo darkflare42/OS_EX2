@@ -28,4 +28,3 @@ private:
 };
 
 #endif	/* PRIORITYQUEUE_H */
-

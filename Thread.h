@@ -26,7 +26,7 @@ private:
     static int NewID();
     int _id;
     int _totalQuantums;
-    Priority prio;
+    Priority _prio;
 };
 
 static std::list<int> idList;

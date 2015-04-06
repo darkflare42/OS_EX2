@@ -7,6 +7,7 @@
 
 #include "Thread.h"
 #include <algorithm>
+#include <list>
 
 
 Thread::Thread() {
@@ -19,7 +20,7 @@ Thread::~Thread() {
 }
 
 Priority Thread::getPriority() {
-    return prio;
+    return _prio;
 }
 
 void Thread::RemoveID(int toRemove) {
@@ -37,8 +38,15 @@ void Thread::RemoveID(int toRemove) {
         idList.push_back(toRemove);
     }
 }
-
+/**
+ * Returns the lowest available ID.
+ * @return lowest available ID. -1 if none is available.
+ */
 int Thread::NewID() {
+    if (idList.size() == 0)
+    {
+        return -1;
+    }
     int temp = idList.front();
     idList.erase(idList.begin());
     return temp;

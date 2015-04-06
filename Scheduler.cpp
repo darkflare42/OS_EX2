@@ -14,14 +14,22 @@ Scheduler::Scheduler()
 
 int Scheduler::init(int quantum){
     
-    //create a new thread using the MAIN_THREAD_ID
-    //set it to running mode, and start timer
-    setTimerIntervals(quantum);
+    try{
+        
+        setTimerIntervals(quantum);
+        _runningThreadID = 0; //Set the running ID Thread to 0
+        _threadMap.insert({0, shared_ptr<Thread>(new Thread())});
+        //startTimer
+    }
+    catch(...){
+        return FAIL;
+    }
+    
     return OK;
 }
 
 int Scheduler::allocateID(){
-    //TODO: Allocate an ID
+    return Thread.getID();
 }
 
 void Scheduler::startTimer(){
@@ -29,8 +37,9 @@ void Scheduler::startTimer(){
 }
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
-    std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
-    return temp;
+    return _threadMap[tid];
+    //std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
+    //return temp;
 }
 
 

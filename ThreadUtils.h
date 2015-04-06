@@ -15,6 +15,12 @@ enum ERRCODE{
            
 };
 
+enum STATE{
+    Running = 0,
+    Suspended = 1,
+    Terminated = 2,
+};
+
 #define MAIN_THREAD_ID 0
 
 #endif	/* THREADUTILS_H */

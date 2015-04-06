@@ -45,7 +45,7 @@ class Scheduler {
         int _runningThreadID;
         int _totalQuantums;
         
-        std::map<int, Thread> _threadMap;
+        std::map<int, shared_ptr<Thread>> _threadMap;
         
         void setTimerIntervals(int quantums);
     

@@ -8,6 +8,7 @@
 #ifndef THREAD_H
 #define	THREAD_H
 #include "ThreadUtils.h"
+#include "uthreads.h"
 #include <list>
 using namespace std;
 
@@ -18,10 +19,13 @@ public:
     virtual ~Thread();
     Priority getPriority();
     
+    int getTotalQuantums();
+    int getID();
 private:
     static void RemoveID(int toRemove);
     static int NewID();
-    
+    int _id;
+    int _totalQuantums;
     Priority prio;
 };
 

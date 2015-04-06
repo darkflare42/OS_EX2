@@ -44,3 +44,13 @@ int Thread::NewID() {
     return temp;
 }
 
+
+int Thread::getTotalQuantums() {
+    return _totalQuantums;
+}
+
+
+int Thread::getID(){
+    return _id;
+}
+

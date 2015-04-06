@@ -8,14 +8,13 @@
 #ifndef THREADUTILS_H
 #define	THREADUTILS_H
 
-enum Priority
-{
-    // Lower number equivalent to a higher priority.
-    RED = 0,
-    ORANGE = 1,
-    GREEN = 2,
-    NOPRIORITY = 100, // default priority.
+
+enum ERRCODE{
+    OK = 0,
+    FAIL = -1,
+           
 };
 
+#define MAIN_THREAD_ID 0
 
 #endif	/* THREADUTILS_H */

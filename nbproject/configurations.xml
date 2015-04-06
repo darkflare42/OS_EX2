@@ -21,6 +21,7 @@
       <itemPath>Scheduler.cpp</itemPath>
       <itemPath>Thread.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
+      <itemPath>uthreads.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -43,6 +44,9 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <ccTool>
+          <commandLine>-std=c++11</commandLine>
+        </ccTool>
       </compileType>
       <item path="PriorityQueue.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -59,6 +63,8 @@
       <item path="ThreadUtils.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="uthreads.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="uthreads.h" ex="false" tool="3" flavor2="0">
       </item>
@@ -98,6 +104,8 @@
       <item path="ThreadUtils.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="uthreads.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="uthreads.h" ex="false" tool="3" flavor2="0">
       </item>

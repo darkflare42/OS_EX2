@@ -10,23 +10,39 @@
 
 #include <sys/time.h>
 #include <signal.h>
+#include <memory>
 #include "Thread.h"
+#include "ThreadUtils.h"
 #include "PriorityQueue.h"
 
-#define DEFAULT_QUANTUM 2;
+#define DEFAULT_QUANTUM 2
 
 class Scheduler {
     public: 
-        
-        Scheduler();
         Scheduler(int quantum);
+        Scheduler();
+        
+        int init(int quantum);
+        std::shared_ptr<Thread> getThread(int tid);
+        //Maybe all these need to be references (& after the shared_ptr)
+        int resumeThread(shared_ptr<Thread> thread);
+        int suspendThread(shared_ptr<Thread> thread);
+        int terminateThread(shared_ptr<Thread> thread);
+        
+        void startTimer();
         
         int allocateID();
+        int getRunningThreadID();
+        int getTotalQuantums();
     private:
         struct itimerval _tv;
         PriorityQueue _readyQueue;
         PriorityQueue _suspendedQueue;
         PriorityQueue _sleepingQueue;
+        std::shared_ptr<Thread> _runningThread;
+        int _totalQuantums;
+        
+        void setTimerIntervals(int quantums);
     
 };
 

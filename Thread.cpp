@@ -10,8 +10,8 @@
 #include <list>
 
 
-Thread::Thread(int totalQuantums, Priority prio, void (*entry)(void)) : 
-    _totalQuantums(totalQuantums), _prio(prio), _entry(entry) {
+Thread::Thread(int id, Priority prio, void (*entry)(void)) : 
+    _id(id), _totalQuantums(0), _prio(prio),_currState(Ready), _entry(entry) {
 }
 
 Thread::Thread(const Thread& orig) {
@@ -62,11 +62,13 @@ int Thread::NewID() {
     return temp;
 }
 
+void Thread::increaseTotalQuantums(int value){
+    _totalQuantums+=value;
+}
 
 int Thread::getTotalQuantums() {
     return _totalQuantums;
 }
-
 
 int Thread::getID(){
     return _id;

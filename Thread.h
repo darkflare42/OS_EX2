@@ -10,11 +10,13 @@
 #include "ThreadUtils.h"
 #include "uthreads.h"
 #include <list>
+
+
 using namespace std;
 
 class Thread {
 public:
-    Thread(int totalQuantums, Priority prio, void (*entry)(void));
+    Thread(int id, Priority prio, void (*entry)(void));
     Thread(const Thread& orig);
     ~Thread();
     Priority getPriority();
@@ -23,10 +25,12 @@ public:
     int getID();
     State getState();
     void setState(State stateToSet);
+    void increaseTotalQuantums(int value);
     static void InitiateIDList();
     static int NewID();
-private:
     static void RemoveID(int toRemove);
+private:
+    
     
     int _id;
     int _totalQuantums; // TODO what is this?

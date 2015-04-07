@@ -12,7 +12,7 @@ int uthread_init(int quantum_usecs){
 }
 
 int uthread_spawn(void (*f)(void), Priority pr){
-    return _sched.spawnThread(f);
+    return _sched.spawnThread(f, pr);
     
 }
 

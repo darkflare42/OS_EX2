@@ -11,12 +11,14 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <memory>
+#include <iostream>
 #include "Thread.h"
 #include "ThreadUtils.h"
 #include "PriorityQueue.h"
 #include <map>
 
 #define DEFAULT_QUANTUM 2
+#define USECS_TO_SEC 1000000
 
 class Scheduler {
     public: 
@@ -27,14 +29,16 @@ class Scheduler {
         std::shared_ptr<Thread> getThread(int tid);
         
         //Maybe all these need to be references (& after the shared_ptr)
-        int spawnThread(void (*f)(void));
+        int spawnThread(void (*f)(void), Priority pr);
         int resumeThread(shared_ptr<Thread> thread);
         int suspendThread(shared_ptr<Thread> thread);
         int terminateThread(shared_ptr<Thread> thread);
         
         void startTimer();
+        void resetTimer();
+        void schedulerTick(int sig);
         void changeThreadQueue(shared_ptr<Thread> thread, State newState);
-        
+        void changeRunningThread(shared_ptr<Thread> newThread);
         
         int allocateID();
         int getRunningThreadID();
@@ -53,6 +57,7 @@ class Scheduler {
     
 };
 
+void timerTick(int sig);
 
 #endif	/* SCHEDULER_H */
 

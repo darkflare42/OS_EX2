@@ -21,7 +21,7 @@ int Scheduler::init(int quantum){
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
         _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
-        //startTimer
+        startTimer();
     }
     catch(...){
         return FAIL;
@@ -36,7 +36,47 @@ int Scheduler::allocateID(){
 }
 
 void Scheduler::startTimer(){
-    //TODO: start timer
+    //The function timerTick will be called whenever there will be a timer tick
+    signal(SIGVTALRM, timerTick);
+    
+    //Note: _tv is initiated in the init function, therefore we can use it 
+    //in the call to setitimer
+    if(setitimer(ITIMER_VIRTUAL, &_tv, NULL)){
+        //TODO: Error
+    }
+    
+    for(;;){
+        
+    }
+}
+
+//This function will be called by ther timerTick function
+void Scheduler::schedulerTick(int sig){
+    _totalQuantums++; //TODO: Maybe += quantum value?
+    //We have threads that need to run
+    if(!_readyQueue.empty()){
+        changeThreadQueue(_readyQueue.pop(), Running);
+    }
+}
+
+//TODO: Check if needed
+void Scheduler::resetTimer(){
+    
+    
+    
+}
+
+
+
+
+//This is declared outside the scope of the Scheduler because of the 
+//signal function constraints
+void timerTick(int sig){
+    cout << "This is a test" << sig <<std::endl;
+    //TODO: Check what the best method is for calling scheduler from here
+    //Maybe needs extern scheduler
+    
+    
 }
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
@@ -53,12 +93,12 @@ shared_ptr<Thread> Scheduler::getThread(int tid){
     //return temp;
 }
 
-int Scheduler::spawnThread(void(*f)()){
+int Scheduler::spawnThread(void(*f)(), Priority pr){
     int newID = Thread::NewID();
     if(newID == FAIL){
         return FAIL;
     }
-    _threadMap.insert({newID, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
+    _threadMap.insert({newID, shared_ptr<Thread>(new Thread(newID, pr, f))});
     _readyQueue.push(_threadMap[newID]);
 }
 
@@ -82,6 +122,7 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
     changeThreadQueue(thread, Suspended);
     
     //TODO: Check what is needed to happen if a thread suspends itself!
+    //TODO: Check what happens when a thread that is running is suspended
     
     
     return OK;
@@ -90,7 +131,9 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
 int Scheduler::terminateThread(shared_ptr<Thread> thread){
     
     //TODO: add stuff
+    Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
+    
     
     return OK;
 }
@@ -100,6 +143,7 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
     //Assumes relocation of thread is always successful and updates the correct state.
     switch(thread->getState()) {
         case Running:
+            _runningThread = 0; //Nullify the running thread
             break;
         case Ready:
             _readyQueue.pop(thread);
@@ -109,8 +153,10 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
             break;
     }
     
+    thread->setState(newState);
     switch (newState) {
         case Running:
+            changeRunningThread(thread);
             break;
         case Ready:
             _readyQueue.push(thread);
@@ -120,7 +166,16 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
             break;
     }
     
-    thread->setState(newState);
+    
+}
+
+void Scheduler::changeRunningThread(shared_ptr<Thread> newThread){
+    //Move the current running thread to ready queue
+    changeThreadQueue(_threadMap[_runningThreadID], Ready);
+    
+    //Move the new thread into the running state
+    _runningThreadID = newThread->getID();
+    newThread->increaseTotalQuantums(1); //Check if need += quantum value
 }
 
 int Scheduler::getRunningThreadID(){
@@ -132,9 +187,9 @@ int Scheduler::getTotalQuantums(){
 }
 
 void Scheduler::setTimerIntervals(int quantums){
-    _tv.it_value.tv_sec = quantums / 100;
-    _tv.it_value.tv_usec = quantums % 100;
-    _tv.it_interval.tv_sec = 0;
-    _tv.it_interval.tv_usec = 0;
+    _tv.it_value.tv_sec = quantums / USECS_TO_SEC;
+    _tv.it_value.tv_usec = quantums % USECS_TO_SEC;
+    _tv.it_interval.tv_sec = quantums / USECS_TO_SEC;
+    _tv.it_interval.tv_usec = quantums % USECS_TO_SEC;
     
 }

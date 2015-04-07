@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include "uthreads.h"
 
 using namespace std;
 
@@ -17,6 +18,11 @@ int main(int argc, char** argv) {
 
     cout << "test";
     cout << "blat";
+    uthread_init(0);
+    uthread_spawn(NULL, RED);
+    uthread_spawn(NULL, GREEN);
+    uthread_spawn(NULL, ORANGE);
+    uthread_suspend(1);
     //after cloning, let's see if it gets updated!
     //test
     //test2

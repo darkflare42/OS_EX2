@@ -12,13 +12,6 @@ int uthread_init(int quantum_usecs){
 }
 
 int uthread_spawn(void (*f)(void), Priority pr){
-    int id = _sched.allocateID();
-    
-    if(id == FAIL){
-        //TODO: do stuff
-        return FAIL;
-    }
-    
     return _sched.spawnThread(f);
     
 }

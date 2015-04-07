@@ -19,7 +19,7 @@ int Scheduler::init(int quantum){
         setTimerIntervals(quantum);
         Thread::InitiateIDList(); // TODO requires a debug.
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
-        _threadMap.insert({0, shared_ptr<Thread>(new Thread())});
+        _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
         //startTimer
     }
@@ -58,7 +58,7 @@ int Scheduler::spawnThread(void(*f)()){
     if(newID == FAIL){
         return FAIL;
     }
-    _threadMap.insert({newID, shared_ptr<Thread>(new Thread())});
+    _threadMap.insert({newID, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
     _readyQueue.push(_threadMap[newID]);
 }
 

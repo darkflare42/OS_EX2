@@ -7,7 +7,7 @@
 
 #include "PriorityQueue.h"
 
-PriorityQueue::PriorityQueue() {
+PriorityQueue::PriorityQueue() : _size(0) {
 }
 
 PriorityQueue::PriorityQueue(const PriorityQueue& orig) {
@@ -16,7 +16,15 @@ PriorityQueue::PriorityQueue(const PriorityQueue& orig) {
 PriorityQueue::~PriorityQueue() {
 }
 
-void PriorityQueue::Enqueue(std::shared_ptr<Thread> threadPtr) {
+bool PriorityQueue::empty () {
+    return (_size == 0);
+}
+
+int PriorityQueue::size () {
+    return _size;
+}
+
+void PriorityQueue::push(std::shared_ptr<Thread> threadPtr) {
     switch(threadPtr->getPriority()) {
         case RED:
             redQ.push_back(threadPtr);
@@ -28,10 +36,11 @@ void PriorityQueue::Enqueue(std::shared_ptr<Thread> threadPtr) {
             greenQ.push_back(threadPtr);
             break;
     }
+    _size++;
 }
 
-std::shared_ptr<Thread> PriorityQueue::Dequeue(){
-    std::shared_ptr<Thread> temp;
+std::shared_ptr<Thread> PriorityQueue::pop(){
+    std::shared_ptr<Thread> temp = nullptr;
     if (redQ.size() > 0) {
         temp = redQ.front();
         redQ.pop_front();
@@ -44,6 +53,9 @@ std::shared_ptr<Thread> PriorityQueue::Dequeue(){
         temp = greenQ.front();
         greenQ.pop_front();
     }
+    if (temp != nullptr) {
+        _size--;
+    }
     return temp;
 }
 
@@ -53,7 +65,7 @@ std::shared_ptr<Thread> PriorityQueue::Dequeue(){
  * @param thread
  * @return void
  */
-void PriorityQueue::Dequeue(std::shared_ptr<Thread> thread){
+void PriorityQueue::pop(std::shared_ptr<Thread> thread){
     
     std::list<std::shared_ptr<Thread>> *trgtList;
     switch (thread->getPriority()) {
@@ -72,6 +84,7 @@ void PriorityQueue::Dequeue(std::shared_ptr<Thread> thread){
     {
         if (thread == *i) {
             trgtList->erase(i);
+            _size--;
             break;
         }
     }

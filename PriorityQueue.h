@@ -18,14 +18,17 @@ public:
     PriorityQueue();
     PriorityQueue(const PriorityQueue& orig);
     virtual ~PriorityQueue();
-    void Enqueue(std::shared_ptr<Thread> threadPtr);
-    std::shared_ptr<Thread> Dequeue();
-    void Dequeue(std::shared_ptr<Thread> thread);
+    bool empty();
+    int size();
+    void push(std::shared_ptr<Thread> threadPtr);
+    std::shared_ptr<Thread> pop();
+    void pop(std::shared_ptr<Thread> thread);
     
 private:
     std::list<std::shared_ptr<Thread>> redQ;
     std::list<std::shared_ptr<Thread>> orangeQ;
     std::list<std::shared_ptr<Thread>> greenQ;
+    int _size;
 };
 
 #endif	/* PRIORITYQUEUE_H */

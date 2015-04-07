@@ -59,7 +59,7 @@ int Scheduler::spawnThread(void(*f)()){
         return FAIL;
     }
     _threadMap.insert({newID, shared_ptr<Thread>(new Thread())});
-    _readyQueue.Enqueue(_threadMap[newID]);
+    _readyQueue.push(_threadMap[newID]);
 }
 
 int Scheduler::resumeThread(shared_ptr<Thread> thread){
@@ -102,10 +102,10 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
         case Running:
             break;
         case Ready:
-            _readyQueue.Dequeue(thread);
+            _readyQueue.pop(thread);
             break;
         case Suspended:
-            _suspendedQueue.Dequeue(thread);
+            _suspendedQueue.pop(thread);
             break;
     }
     
@@ -113,10 +113,10 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
         case Running:
             break;
         case Ready:
-            _readyQueue.Enqueue(thread);
+            _readyQueue.push(thread);
             break;
         case Suspended:
-            _suspendedQueue.Enqueue(thread);
+            _suspendedQueue.push(thread);
             break;
     }
     

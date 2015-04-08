@@ -83,7 +83,6 @@ Thread::Thread(const Thread& orig) {
 }
 
 Thread::~Thread() {
-    RemoveID(_id);
 }
 
 Priority Thread::getPriority() {

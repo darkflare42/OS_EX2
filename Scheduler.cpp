@@ -179,12 +179,11 @@ void timerTick(int sig){
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
     shared_ptr<Thread> thread = nullptr;
-    try{
+    if (_threadMap.find(tid) != _threadMap.end()) {
         thread = _threadMap[tid];
-        //TODO: Check if throws exception when it's not there
     }
-    catch(...){
-        return nullptr;
+    else {
+        thread = nullptr;
     }
     return thread;
     //std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
@@ -245,6 +244,12 @@ int Scheduler::terminateThread(shared_ptr<Thread> thread){
     
     //TODO: removeid is also in destructor of Thread, check what happens, maybe
     //delete thread (deleting the actual thread and all shared ptrs) ??
+    
+    // Oded: I removed removeID from the destructor because the (seemingly) 
+    // unexpected behaviour of shared_ptr, where we won't know for 100% when the
+    // dtor will be called.
+    // Also, the moment you erase the thread from the map, its gone.
+    // Is it ok you call siglongjmp after you deleted the thread?
     bool isRunning = (thread->getState() == Running);
     Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
@@ -258,6 +263,8 @@ int Scheduler::terminateThread(shared_ptr<Thread> thread){
 void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
     //TODO: debug.
     //Assumes relocation of thread is always successful and updates the correct state.
+    
+    // Remove from old state.
     switch(thread->getState()) {
         case Running:
             _runningThread = 0; //Nullify the running thread
@@ -270,6 +277,7 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
             break;
     }
     
+    // Update new state.
     thread->setState(newState);
     switch (newState) {
         case Running:

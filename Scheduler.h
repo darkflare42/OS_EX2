@@ -19,6 +19,7 @@
 
 #define DEFAULT_QUANTUM 2
 #define USECS_TO_SEC 1000000
+#define SIG_SPEC_ALRM = SIGVTALRM + 1
 
 class Scheduler {
     public: 
@@ -37,6 +38,7 @@ class Scheduler {
         void startTimer();
         void resetTimer();
         void schedulerTick(int sig);
+        int isAlrmPending();
         void changeThreadQueue(shared_ptr<Thread> thread, State newState);
         void changeRunningThread(shared_ptr<Thread> newThread);
         

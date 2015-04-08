@@ -55,6 +55,11 @@ address_t translate_address(address_t addr)
 Thread::Thread(int id, Priority prio, void (*entry)(void)) : 
     _id(id), _totalQuantums(0), _prio(prio),_currState(Ready), _entry(entry) {
     
+    //Main thread creation
+    if(entry == NULL){
+        return;
+    }
+    
     address_t sp, pc;
     sp = (address_t)_stack + STACK_SIZE - sizeof(address_t);
     pc = (address_t)entry;

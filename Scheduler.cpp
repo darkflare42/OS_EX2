@@ -22,8 +22,8 @@ int Scheduler::init(int quantum){
         _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
         
-        sigemptyset(&_mask); //empty the signal masks
-        
+        //TODO: Maybe the mask needs to be set to SIGVTALRM
+        sigemptyset(&_mask); //empty the signal mask
         startTimer();
     }
     catch(...){
@@ -47,25 +47,82 @@ void Scheduler::startTimer(){
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL)){
         //TODO: Error
     }
-    
-    for(;;){
-        
-    }
+
 }
 
 //This function will be called by ther timerTick function
 void Scheduler::schedulerTick(int sig){
     _totalQuantums++; //TODO: Maybe += quantum value?
-    //We have threads that need to run
+    
+    //We have threads that need to run, if this is empty then the running
+    //thread is exclusive, and runs until another queue enters the readyqueue
     if(!_readyQueue.empty()){
         changeThreadQueue(_readyQueue.pop(), Running);
     }
+    
+    //This will be called when there is a special instance (a thread suspending
+    //itself) or when the timer has expired
+    if(sig != SIGVTALRM){
+        resetTimer();
+    }
+    
 }
 
-//TODO: Check if needed
 void Scheduler::resetTimer(){
     
+    //Forcefully stop the timer
+    if(setitimer(ITIMER_VIRTUAL, NULL, NULL)){
+        //TODO: Error handling
+    }
     
+    //If the alarm signal is pending
+    if(isAlrmPending()){
+        int signal;
+        sigset_t pendingSet;
+        
+        
+        //Empty the set
+        if(sigemptyset(&pendingSet)){
+            //TODO: error handling
+        }
+        
+        //Insert SIGVTALRM
+        if(sigaddset(&pendingSet, SIGVTALRM)){
+            //TODO: Error handling
+        }
+        
+        //Wait for the signal to "jump", i.e remove it from pending
+        if(sigwait(&pendingSet, &signal)){
+            //TODO: Error handling
+        }
+        
+    }
+    
+    //Start the timer again
+    if(setitimer(ITIMER_VIRTUAL, &_tv, NULL)){
+        //TODO: Error handling
+    }
+    
+    return OK;
+}
+
+//This function returns true if the ALRM signal is pending
+int Scheduler::isAlrmPending(){
+    sigset_t set;
+    
+    //Get the pending signals set
+    if(sigpending(&set)){
+        //TODO: error handling
+    }
+    
+    //This checks if SIGVTALRM is in the pending set
+    int sigAlrmPending = sigismember(&set, SIGVTALRM);
+    //This occurs if there was an error with sigismember
+    if(sigAlrmPending == -1){
+        //TODO: error handling
+    }
+    
+    return sigAlrmPending;
     
 }
 
@@ -114,6 +171,8 @@ void timerTick(int sig){
     
     //Call the scheduler tick function in the scheduler
     currSched->schedulerTick(sig);
+    currSched->startTimer(); //We reset the timer each tick so as not to have
+                             //timing issues
     siglongjmp(currSched->getRunningThread()->env, 1);
 }
 
@@ -140,41 +199,58 @@ int Scheduler::spawnThread(void(*f)(), Priority pr){
     _readyQueue.push(_threadMap[newID]);
 }
 
+//Probably finished
 int Scheduler::resumeThread(shared_ptr<Thread> thread){
     
     //Can resume a thread only if it is suspended
     if(thread->getState() == Suspended)
     {
-        
         changeThreadQueue(thread, Ready);
     }
     return OK;
 }
 
+//Probably finished
 int Scheduler::suspendThread(shared_ptr<Thread> thread){
-    //Sanity check
+    //Sanity check, maybe redundant 
     if(thread->getState() == Suspended){
         return OK;
     }
     
+    //Save the current thread environment
+    int tempVal = sigsetjmp(thread->env, 1);
+    if(tempVal == 1){
+        return OK;
+    }
+    
+    //Change the queue
+    bool isRunning = (thread->getState()== Running);
     changeThreadQueue(thread, Suspended);
     
-    //TODO: Check what is needed to happen if a thread suspends itself!
-    //TODO: Check what happens when a thread that is running is suspended
+    //If the thread suspended was running, the timer needs to be reset and a new
+    //thread should be pushed to Running with full quantums
+    if(isRunning){
+        schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
+    }
     
+    siglongjmp(thread->env, 1);
     
     return OK;
 }
 
+
+
 int Scheduler::terminateThread(shared_ptr<Thread> thread){
     
-    //TODO: add stuff
     //TODO: removeid is also in destructor of Thread, check what happens, maybe
-    //delete thread (deleting the actual thread and all shared ptrs)
+    //delete thread (deleting the actual thread and all shared ptrs) ??
+    bool isRunning = (thread->getState() == Running);
     Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
-    
-    
+    if(isRunning){
+        schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
+        siglongjmp(getRunningThread()->env, 1);
+    }
     return OK;
 }
 
@@ -233,7 +309,7 @@ shared_ptr<Thread> Scheduler::getRunningThread(){
 void Scheduler::setTimerIntervals(int quantums){
     _tv.it_value.tv_sec = quantums / USECS_TO_SEC;
     _tv.it_value.tv_usec = quantums % USECS_TO_SEC;
-    _tv.it_interval.tv_sec = quantums / USECS_TO_SEC;
-    _tv.it_interval.tv_usec = quantums % USECS_TO_SEC;
+    _tv.it_interval.tv_sec = 0;
+    _tv.it_interval.tv_usec = 0;
     
 }

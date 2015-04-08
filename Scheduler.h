@@ -19,7 +19,7 @@
 
 #define DEFAULT_QUANTUM 2
 #define USECS_TO_SEC 1000000
-#define SIG_SPEC_ALRM = SIGVTALRM + 1
+#define SIG_SPEC_ALRM SIGVTALRM + 1
 
 class Scheduler {
     public: 

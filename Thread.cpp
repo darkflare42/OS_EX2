@@ -8,6 +8,7 @@
 #include "Thread.h"
 #include <algorithm>
 #include <list>
+#include <stdexcept>
 
 
 #ifdef __x86_64__
@@ -91,6 +92,9 @@ Priority Thread::getPriority() {
 
 
 void Thread::InitiateIDList() {
+    if (idList.size() != 0) {
+        throw std::logic_error("ID list already initialized!");
+    }
     for (int i = 0 ; i < MAX_THREAD_NUM ; i++)
     {
         idList.emplace_back(i);

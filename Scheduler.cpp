@@ -103,7 +103,7 @@ void Scheduler::resetTimer(){
         //TODO: Error handling
     }
     
-    return OK;
+    //return OK; //TODO Or, you tried to return a value from void.
 }
 
 //This function returns true if the ALRM signal is pending

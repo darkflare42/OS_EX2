@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     //uthread_suspend(1);
     //uthread_resume(1);
     //after cloning, let's see if it gets updated!
-    //test
+    //testas
     //test2
     return 0;
 }

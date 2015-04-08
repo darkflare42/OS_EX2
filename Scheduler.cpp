@@ -21,6 +21,9 @@ int Scheduler::init(int quantum){
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
         _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
+        
+        sigemptyset(&_mask); //empty the signal masks
+        
         startTimer();
     }
     catch(...){
@@ -66,17 +69,52 @@ void Scheduler::resetTimer(){
     
 }
 
+//This function blocks the SIGVTALRM signal
+void Scheduler::blockSignals(){
+    
+    sigset_t tempMask;
+    
+    //Empty the mask
+    if(sigemptyset(&tempMask)){
+        //TODO: Error Handling
+    }
+    
+    //Add the SIGVTALRM to the set
+    if(sigaddset(&tempMask, SIGVTALRM)){
+        //TODO: Error handling
+    }
+    
+    //Block the mask, and save the old blocked signals in _mask
+    if(sigprocmask(SIG_SETMASK, &tempMask, &_mask)){
+        //TODO: Error Handling
+    }
+}
 
+//This function unblocks the current signals and reverts to the previous
+//blocked signals that were saved in _mask
+void Scheduler::unblockSignals(){
+    if(sigprocmask(SIG_SETMASK, &_mask, NULL)){
+        //TODO: Error Handling
+    }
+}
+
+
+Scheduler *currSched = new Scheduler();
 
 
 //This is declared outside the scope of the Scheduler because of the 
 //signal function constraints
 void timerTick(int sig){
-    cout << "This is a test" << sig <<std::endl;
-    //TODO: Check what the best method is for calling scheduler from here
-    //Maybe needs extern scheduler
     
+    //TODO: Check if we can move env into private and a function that returns it
+    int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
+    if(tempVal == 1){
+        return;
+    }
     
+    //Call the scheduler tick function in the scheduler
+    currSched->schedulerTick(sig);
+    siglongjmp(currSched->getRunningThread()->env, 1);
 }
 
 shared_ptr<Thread> Scheduler::getThread(int tid){
@@ -131,6 +169,8 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
 int Scheduler::terminateThread(shared_ptr<Thread> thread){
     
     //TODO: add stuff
+    //TODO: removeid is also in destructor of Thread, check what happens, maybe
+    //delete thread (deleting the actual thread and all shared ptrs)
     Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
     
@@ -184,6 +224,10 @@ int Scheduler::getRunningThreadID(){
 
 int Scheduler::getTotalQuantums(){
     return _totalQuantums;
+}
+
+shared_ptr<Thread> Scheduler::getRunningThread(){
+    return getThread(_runningThreadID);
 }
 
 void Scheduler::setTimerIntervals(int quantums){

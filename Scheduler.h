@@ -40,8 +40,13 @@ class Scheduler {
         void changeThreadQueue(shared_ptr<Thread> thread, State newState);
         void changeRunningThread(shared_ptr<Thread> newThread);
         
+        void blockSignals();
+        void unblockSignals();
+        
+        
         int allocateID();
         int getRunningThreadID();
+        shared_ptr<Thread> getRunningThread();
         int getTotalQuantums();
     private:
         struct itimerval _tv;
@@ -50,6 +55,8 @@ class Scheduler {
         std::shared_ptr<Thread> _runningThread; //TODO can be deleted?
         int _runningThreadID;
         int _totalQuantums;
+        
+        sigset_t _mask;
         
         std::map<int, shared_ptr<Thread>> _threadMap;
         

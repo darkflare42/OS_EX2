@@ -7,9 +7,14 @@
 
 #ifndef THREAD_H
 #define	THREAD_H
+#include <setjmp.h>
+#include <signal.h>
 #include "ThreadUtils.h"
 #include "uthreads.h"
 #include <list>
+
+#define SECOND 1000000
+#define STACK_SIZE 4096
 
 
 using namespace std;
@@ -26,17 +31,21 @@ public:
     State getState();
     void setState(State stateToSet);
     void increaseTotalQuantums(int value);
+    
     static void InitiateIDList();
     static int NewID();
     static void RemoveID(int toRemove);
+    
+    sigjmp_buf env;
 private:
     
-    
+    char _stack[STACK_SIZE];
     int _id;
     int _totalQuantums; // TODO what is this?
     Priority _prio;
     State _currState;
     void (*_entry)(void);
+    
 };
 
 static std::list<int> idList;

@@ -107,6 +107,7 @@ void Scheduler::resetTimer(){
 }
 
 //This function returns true if the ALRM signal is pending
+//That means that the SIGVTALRM was "thrown" while we blocked signals
 int Scheduler::isAlrmPending(){
     sigset_t set;
     

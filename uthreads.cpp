@@ -29,6 +29,7 @@ int uthread_suspend(int tid){
     
     //Cannot suspend the main Thread
     if(tid == 0){
+        cout << "thread library error: cannot suspend main thread" << endl;
         currSched->unblockSignals();
         return FAIL;
     }

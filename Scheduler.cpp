@@ -14,6 +14,11 @@ Scheduler::Scheduler()
 
 int Scheduler::init(int quantum){
     
+    if(quantum <= 0){
+        cout << "thread library error: non-positive quantum usecs" << endl;
+        return FAIL;
+    }
+    
     try{
         
         setTimerIntervals(quantum);
@@ -196,6 +201,7 @@ shared_ptr<Thread> Scheduler::getThread(int tid){
         thread = _threadMap[tid];
     }
     else {
+        cout << "thread library error: no such thread" << std::endl;
         thread = nullptr;
     }
     return thread;
@@ -206,6 +212,7 @@ shared_ptr<Thread> Scheduler::getThread(int tid){
 int Scheduler::spawnThread(void(*f)(), Priority pr){
     int newID = Thread::NewID();
     if(newID == FAIL){
+        cout << "thread library error: maximum threads" << endl;
         return FAIL;
     }
     _threadMap.insert({newID, shared_ptr<Thread>(new Thread(newID, pr, f))});
@@ -229,23 +236,22 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
     //Sanity check, maybe redundant 
     if(thread->getState() == Suspended){
         return OK;
-    }
-    cout << "suspending " << thread->getID() << endl;
+    }    
     //Save the current thread environment
     //int tempVal = sigsetjmp(thread->env, 1);
     //if(tempVal == 1){
     //    return OK;
     //}
     
-    cout << _suspendedQueue.size() << std::endl;
-    cout << _readyQueue.size() << std::endl;
+    //cout << _suspendedQueue.size() << std::endl;
+    //cout << _readyQueue.size() << std::endl;
     
     //Change the queue
     bool isRunning = (thread->getState()== Running);
     changeThreadQueue(thread, Suspended);
     
-    cout << _suspendedQueue.size() << std::endl;
-    cout << _readyQueue.size() << std::endl;
+    //cout << _suspendedQueue.size() << std::endl;
+    //cout << _readyQueue.size() << std::endl;
 
     
     //If the thread suspended was running, the timer needs to be reset and a new
@@ -253,8 +259,8 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
     if(isRunning){
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
     }
-    cout << _suspendedQueue.size() << std::endl;
-    cout << _readyQueue.size() << std::endl;
+    //cout << _suspendedQueue.size() << std::endl;
+    //cout << _readyQueue.size() << std::endl;
     
     //siglongjmp(thread->env, 1);
     //siglongjmp(getThread(_runningThreadID)->env, 1);
@@ -291,7 +297,7 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
     // Remove from old state.
     switch(thread->getState()) {
         case Running:
-            _runningThread = 0; //Nullify the running thread
+            _runningThreadID = -1; //Nullify the running thread
             break;
         case Ready:
             _readyQueue.pop(thread);
@@ -314,14 +320,14 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
             _suspendedQueue.push(thread);
             break;
     }
-    
-    
 }
 
 void Scheduler::changeRunningThread(shared_ptr<Thread> newThread){
     //Move the current running thread to ready queue
-    changeThreadQueue(_threadMap[_runningThreadID], Ready);
-    
+    if(_threadMap.find(_runningThreadID) != _threadMap.end())
+    {
+        changeThreadQueue(_threadMap[_runningThreadID], Ready);
+    }
     //Move the new thread into the running state
     _runningThreadID = newThread->getID();
     newThread->increaseTotalQuantums(1); //Check if need += quantum value

@@ -4,12 +4,12 @@
 using namespace std;
 
 
-Scheduler::Scheduler(int quantum){
+Scheduler::Scheduler(int quantum) : _totalQuantums(0){
     
 }
 
 Scheduler::Scheduler()
-    :Scheduler(DEFAULT_QUANTUM){
+    :_totalQuantums(0){
 }
 
 int Scheduler::init(int quantum){
@@ -25,6 +25,7 @@ int Scheduler::init(int quantum){
         Thread::InitiateIDList(); // TODO requires a debug.
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
         _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
+        //_threadMap.insert({0, make_shared<Thread>(new Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
         
         //TODO: Maybe the mask needs to be set to SIGVTALRM
@@ -198,7 +199,7 @@ void timerTick(int sig){
 shared_ptr<Thread> Scheduler::getThread(int tid){
     shared_ptr<Thread> thread = nullptr;
     if (_threadMap.find(tid) != _threadMap.end()) {
-        thread = _threadMap[tid];
+        thread = _threadMap.at(tid);//_threadMap[tid];
     }
     else {
         cout << "thread library error: no such thread" << std::endl;
@@ -221,7 +222,7 @@ int Scheduler::spawnThread(void(*f)(), Priority pr){
 }
 
 //Probably finished
-int Scheduler::resumeThread(shared_ptr<Thread> thread){
+int Scheduler::resumeThread(shared_ptr<Thread>& thread){
     
     //Can resume a thread only if it is suspended
     if(thread->getState() == Suspended)
@@ -232,7 +233,7 @@ int Scheduler::resumeThread(shared_ptr<Thread> thread){
 }
 
 //Probably finished
-int Scheduler::suspendThread(shared_ptr<Thread> thread){
+int Scheduler::suspendThread(shared_ptr<Thread>& thread){
     //Sanity check, maybe redundant 
     if(thread->getState() == Suspended){
         return OK;
@@ -270,7 +271,7 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
 
 
 
-int Scheduler::terminateThread(shared_ptr<Thread> thread){
+int Scheduler::terminateThread(shared_ptr<Thread>& thread){
     
     //TODO: removeid is also in destructor of Thread, check what happens, maybe
     //delete thread (deleting the actual thread and all shared ptrs) ??

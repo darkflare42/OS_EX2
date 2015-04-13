@@ -54,7 +54,8 @@ address_t translate_address(address_t addr)
 
 
 Thread::Thread(int id, Priority prio, void (*entry)(void)) : 
-    _id(id), _totalQuantums(0), _prio(prio),_currState(Ready), _entry(entry) {
+    _stack(new char[STACK_SIZE]()), _id(id), _totalQuantums(0), 
+        _prio(prio),_currState(Ready), _entry(entry) {
     
     //Main thread creation
     if(entry == NULL){
@@ -84,6 +85,7 @@ Thread::Thread(const Thread& orig) {
 }
 
 Thread::~Thread() {
+    delete _stack;
 }
 
 Priority Thread::getPriority() {

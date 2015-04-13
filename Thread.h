@@ -36,10 +36,12 @@ public:
     static int NewID();
     static void RemoveID(int toRemove);
     
+    char * _stack;
     sigjmp_buf env;
+    
 private:
     
-    char _stack[STACK_SIZE];
+    
     int _id;
     int _totalQuantums; // TODO what is this?
     Priority _prio;

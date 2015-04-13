@@ -35,32 +35,42 @@ int uthread_suspend(int tid){
     }
     
     shared_ptr<Thread> thread = currSched->getThread(tid);
-    if(thread == nullptr || thread->getState() == Suspended){
+    if(thread == nullptr)
+    {
         currSched->unblockSignals();
         return FAIL;
     }
     
-    currSched->unblockSignals();
-    int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
-    if(tempVal == 1){
+    if(thread->getState() == Suspended){
+        currSched->unblockSignals();
         return OK;
     }
-    
-    int errCode = currSched->suspendThread(thread);
-    siglongjmp(currSched->getRunningThread()->env, 1);
+    else
+    {
+        currSched->unblockSignals();
+        int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
+        if(tempVal == 1){
+            return OK;
+        }
+
+        int errCode = currSched->suspendThread(thread);
+        siglongjmp(currSched->getRunningThread()->env, 1);
+        return OK;
+        
+    }
     currSched->unblockSignals();
-    return errCode;
+    return OK;
 }
 
 int uthread_resume(int tid){
     
-    currSched->blockSignals();
+    //currSched->blockSignals();
     shared_ptr<Thread> thread = currSched->getThread(tid);
     if(thread == nullptr){
         return FAIL;
     }
     int errCode =  currSched->resumeThread(thread);
-    currSched->unblockSignals();
+    //currSched->unblockSignals();
     return errCode;
    
 }

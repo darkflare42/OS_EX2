@@ -31,9 +31,9 @@ class Scheduler {
         
         //Maybe all these need to be references (& after the shared_ptr)
         int spawnThread(void (*f)(void), Priority pr);
-        int resumeThread(shared_ptr<Thread> thread);
-        int suspendThread(shared_ptr<Thread> thread);
-        int terminateThread(shared_ptr<Thread> thread);
+        int resumeThread(shared_ptr<Thread>& thread);
+        int suspendThread(shared_ptr<Thread>& thread);
+        int terminateThread(shared_ptr<Thread>& thread);
         
         void startTimer();
         void resetTimer();

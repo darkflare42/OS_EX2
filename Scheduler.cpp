@@ -1,5 +1,5 @@
 #include "Scheduler.h"
-
+#include <iostream>
 
 using namespace std;
 
@@ -24,6 +24,7 @@ int Scheduler::init(int quantum){
         
         //TODO: Maybe the mask needs to be set to SIGVTALRM
         sigemptyset(&_mask); //empty the signal mask
+        sigaddset(&_mask, SIGVTALRM);
         startTimer();
     }
     catch(...){
@@ -40,8 +41,15 @@ int Scheduler::allocateID(){
 
 void Scheduler::startTimer(){
     //The function timerTick will be called whenever there will be a timer tick
-    signal(SIGVTALRM, timerTick);
+    //signal(SIGVTALRM, timerTick);
     
+    
+    action.sa_handler = timerTick;
+    
+    action.sa_flags = 0;
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGVTALRM);
+    sigaction(SIGVTALRM, &action, NULL);
     //Note: _tv is initiated in the init function, therefore we can use it 
     //in the call to setitimer
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL)){
@@ -56,8 +64,13 @@ void Scheduler::schedulerTick(int sig){
     
     //We have threads that need to run, if this is empty then the running
     //thread is exclusive, and runs until another queue enters the readyqueue
-    if(!_readyQueue.empty()){
+    if(!_readyQueue.empty())
+    {
         changeThreadQueue(_readyQueue.pop(), Running);
+    }
+    else //The main thread is the ONLY current running thread, update quantas
+    { 
+        getThread(_runningThreadID)->increaseTotalQuantums(1);
     }
     
     //This will be called when there is a special instance (a thread suspending
@@ -197,6 +210,7 @@ int Scheduler::spawnThread(void(*f)(), Priority pr){
     }
     _threadMap.insert({newID, shared_ptr<Thread>(new Thread(newID, pr, f))});
     _readyQueue.push(_threadMap[newID]);
+    return newID;
 }
 
 //Probably finished
@@ -216,24 +230,34 @@ int Scheduler::suspendThread(shared_ptr<Thread> thread){
     if(thread->getState() == Suspended){
         return OK;
     }
-    
+    cout << "suspending " << thread->getID() << endl;
     //Save the current thread environment
-    int tempVal = sigsetjmp(thread->env, 1);
-    if(tempVal == 1){
-        return OK;
-    }
+    //int tempVal = sigsetjmp(thread->env, 1);
+    //if(tempVal == 1){
+    //    return OK;
+    //}
+    
+    cout << _suspendedQueue.size() << std::endl;
+    cout << _readyQueue.size() << std::endl;
     
     //Change the queue
     bool isRunning = (thread->getState()== Running);
     changeThreadQueue(thread, Suspended);
+    
+    cout << _suspendedQueue.size() << std::endl;
+    cout << _readyQueue.size() << std::endl;
+
     
     //If the thread suspended was running, the timer needs to be reset and a new
     //thread should be pushed to Running with full quantums
     if(isRunning){
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
     }
+    cout << _suspendedQueue.size() << std::endl;
+    cout << _readyQueue.size() << std::endl;
     
-    siglongjmp(thread->env, 1);
+    //siglongjmp(thread->env, 1);
+    //siglongjmp(getThread(_runningThreadID)->env, 1);
     
     return OK;
 }
@@ -304,7 +328,7 @@ void Scheduler::changeRunningThread(shared_ptr<Thread> newThread){
 }
 
 int Scheduler::getRunningThreadID(){
-    return _runningThread->getID();
+    return _runningThreadID;
 }
 
 int Scheduler::getTotalQuantums(){

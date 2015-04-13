@@ -57,7 +57,7 @@ class Scheduler {
         std::shared_ptr<Thread> _runningThread; //TODO can be deleted?
         int _runningThreadID;
         int _totalQuantums;
-        
+        struct sigaction action;
         sigset_t _mask;
         
         std::map<int, shared_ptr<Thread>> _threadMap;

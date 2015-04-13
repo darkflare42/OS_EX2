@@ -14,10 +14,10 @@ int uthread_init(int quantum_usecs){
 int uthread_spawn(void (*f)(void), Priority pr){
     currSched->blockSignals();
     
-    int errCode =  currSched->spawnThread(f, pr);
+    int tID =  currSched->spawnThread(f, pr);
     
     currSched->unblockSignals();
-    return errCode;
+    return tID;
     
 }
 
@@ -39,7 +39,14 @@ int uthread_suspend(int tid){
         return FAIL;
     }
     
+    currSched->unblockSignals();
+    int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
+    if(tempVal == 1){
+        return OK;
+    }
+    
     int errCode = currSched->suspendThread(thread);
+    siglongjmp(currSched->getRunningThread()->env, 1);
     currSched->unblockSignals();
     return errCode;
 }

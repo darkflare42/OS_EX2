@@ -43,6 +43,7 @@ int uthread_suspend(int tid){
     
     if(thread->getState() == Suspended){
         currSched->unblockSignals();
+        thread.reset();
         return OK;
     }
     else
@@ -55,22 +56,25 @@ int uthread_suspend(int tid){
 
         int errCode = currSched->suspendThread(thread);
         siglongjmp(currSched->getRunningThread()->env, 1);
+        thread.reset();
         return OK;
         
     }
     currSched->unblockSignals();
+    thread.reset();
     return OK;
 }
 
 int uthread_resume(int tid){
     
-    //currSched->blockSignals();
+    currSched->blockSignals();
     shared_ptr<Thread> thread = currSched->getThread(tid);
     if(thread == nullptr){
         return FAIL;
     }
     int errCode =  currSched->resumeThread(thread);
-    //currSched->unblockSignals();
+    currSched->unblockSignals();
+    thread.reset();
     return errCode;
    
 }
@@ -95,6 +99,7 @@ int uthread_terminate(int tid){
     
     int errCode =  currSched->terminateThread(thread);
     currSched->unblockSignals();
+    thread.reset();
     return errCode;
 }
 

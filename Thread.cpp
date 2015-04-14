@@ -8,6 +8,7 @@
 #include "Thread.h"
 #include <algorithm>
 #include <list>
+#include <cstring>
 #include <stdexcept>
 
 
@@ -81,7 +82,12 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
     
 }
 
-Thread::Thread(const Thread& orig) {
+Thread::Thread(const Thread& orig):
+    _stack(orig._stack), _id(orig._id), _totalQuantums(orig._totalQuantums),
+    _prio(orig._prio), _currState(orig._currState)
+{
+    	memcpy(env, orig.env, sizeof(sigjmp_buf));
+    
 }
 
 Thread::~Thread() {

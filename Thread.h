@@ -9,6 +9,8 @@
 #define	THREAD_H
 #include <setjmp.h>
 #include <signal.h>
+#include <memory>
+#include <stack>
 #include "ThreadUtils.h"
 #include "uthreads.h"
 #include <list>

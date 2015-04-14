@@ -10,18 +10,18 @@ class PriorityQueue
 {
 public:
     /**
-     * Standard constructor.
-     */
+    * Standard constructor.
+    */
     PriorityQueue();
     
     /**
-     * Copy constructor.
-     */
+    * Copy constructor.
+    */
     PriorityQueue(const PriorityQueue& orig);
     
     /**
-     * Standard destructor.
-     */
+    * Standard destructor.
+    */
     virtual ~PriorityQueue();
     
     /**

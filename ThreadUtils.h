@@ -20,7 +20,6 @@ enum State
     Running = 0,
     Ready = 1,
     Suspended = 2,
-    Terminated = 3, //Maybe unnecessary
 };
 
 #define MAIN_THREAD_ID 0

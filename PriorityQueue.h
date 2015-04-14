@@ -1,10 +1,20 @@
-/* 
- * File:   PriorityQueue.h
- * Author: odedex
- *
- * Created on April 4, 2015, 11:31 AM
- */
-
+/**
+* @file PriorityQueue.h
+* @author Oded Abramas <odedab@cs.huji.ac.il>
+* @version 1.0
+* @date 14 Apr 2015
+*
+* @brief Priority Queue class implementing support for 3 different priorities: Green, Orange and Red.
+*        The class wraps 3 standard library lists and provides a standard queue interface.
+*
+* @section LICENSE
+* This program is not a free software.
+*
+* @section DESCRIPTION
+* USAGE: None.
+* Process: None.
+* Output: None.
+*/
 #ifndef PRIORITYQUEUE_H
 #define	PRIORITYQUEUE_H
 
@@ -16,15 +26,52 @@
 class PriorityQueue 
 {
 public:
+    /**
+    * Standard constructor.
+    */
     PriorityQueue();
+    
+    /**
+    * Copy constructor.
+    */
     PriorityQueue(const PriorityQueue& orig);
+    
+    /**
+    * Standard destructor.
+    */
     virtual ~PriorityQueue();
     
+    /**
+    * Remove the first Thread * available in the queue, according to the priority.
+    * @return Pointer to the thread.
+    */
     Thread * pop();
-    void push(Thread * threadPtr);
+    
+    /**
+    * Remove a specific thread pointer from the queue.
+    * If the pointe is not in the queue, it does nothing.
+    * @param threadPtr a Thread pointer.
+    * @return void
+    */
     void pop(Thread * thread);
     
+    /**
+    * Push a thread pointer into the queue, according to its' priority.
+    * @param threadPtr a Thread pointer.
+    * @return void
+    */
+    void push(Thread * threadPtr);
+    
+    /**
+    * Check if the queue is empty.
+    * @return True iff the queue is empty.
+    */
     bool empty();
+    
+    /**
+    * Check the number of elements in the queue.
+    * @return Number of elements.
+    */
     int size();
     
 private:

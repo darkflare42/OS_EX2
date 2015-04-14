@@ -62,7 +62,6 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
     //Main thread creation
     if(id == MAIN_THREAD_ID)
     {
-        _totalQuantums = 1;
         return;
     }
     

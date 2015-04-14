@@ -32,11 +32,6 @@ public:
     PriorityQueue();
     
     /**
-    * Copy constructor.
-    */
-    PriorityQueue(const PriorityQueue& orig);
-    
-    /**
     * Standard destructor.
     */
     virtual ~PriorityQueue();

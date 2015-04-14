@@ -1,5 +1,6 @@
 #include "uthreads.h"
 #include "Scheduler.h"
+#include "ThreadUtils.h"
 
 extern Scheduler * gCurrSched;
 
@@ -23,7 +24,6 @@ int uthread_spawn(void (*f)(void), Priority pr)
     
 }
 
-
 int uthread_suspend(int tid)
 {
     gCurrSched->blockSignals();
@@ -31,7 +31,7 @@ int uthread_suspend(int tid)
     //Cannot suspend the main Thread
     if(tid == 0)
     {
-        cout << "thread library error: cannot suspend main thread" << endl;
+        cerr << THREADLIB_ERROR << SUS_MAIN_ERROR << endl;
         gCurrSched->unblockSignals();
         return FAIL;
     }
@@ -57,7 +57,7 @@ int uthread_suspend(int tid)
             return OK;
         }
 
-        int errCode = gCurrSched->suspendThread(thread);
+        gCurrSched->suspendThread(thread);
         siglongjmp(gCurrSched->getRunningThread()->_env, 1);
         return OK;
         

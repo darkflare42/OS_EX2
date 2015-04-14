@@ -1,0 +1,43 @@
+odedab, okeren
+Oded Abrams (203011226), Or Keren (301644522)
+Ex: 2
+
+FILES:
+README - This file.
+Makefile - makefile.
+PriorityQueue.h - Class that represents the priority queue specified in the 
+	          exercise. Wraps 3 standard library lists and provides a queue 
+                  interface.
+Thread.h -        Class that represents a thread. Contains all the information 
+                  required by a given thread as specified in the exercise. 
+Scheduler.h -     Class that implements a specialized 3-priority Round Robin
+                  algorithm as per the requirements. It handles all the flow
+                  of the program including spawning, resuming, suspending
+                  and terminating threads, handling the timer intervals etc.
+ThreadUtils.h -   Utility class. Contains utility constants & enums.
+
+PriorityQueue.cpp - Implementation of PriorityQueue.h.
+Thread.cpp -        Implementation of Thread.h.
+Scheduler.cpp -     Implementation of Scheduler.h.
+uthreads.cpp -      Implementation of uthreads.h.
+
+REMARKS:
+
+ANSWERS:
+
+Task1: 
+
+        Round Robin pros:
+		1. Every thread gets an equal chance to run.
+		2. Each thread is guaranteed to run at least once.
+	Round Robin cons:
+		1. All threads are born equal, no "high" priority for anyone.
+	Priority Queue pros:
+		1. Lets you specify a level of importance for each thread.
+	Priority Queue cons:
+		1. A thread can become starved if its' priority is low 
+		   compared to other important threads that continuously run
+
+Task2:
+
+    After installing a program, a message pops up "Press any key to continue".

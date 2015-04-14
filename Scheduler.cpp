@@ -4,10 +4,10 @@
 using namespace std;
 
 
-Scheduler::Scheduler(int quantum) : 
-   _totalQuantums(0)
-{
-}
+//Scheduler::Scheduler(int quantum) : 
+//   _totalQuantums(0)
+//{
+//}
 
 Scheduler::Scheduler():
     _totalQuantums(0)
@@ -18,7 +18,7 @@ int Scheduler::init(int quantum)
 {
     if(quantum <= 0)
     {
-        cout << "thread library error: non-positive quantum usecs" << endl;
+        cerr << "" + THREADLIB_ERROR << " " << USECS_ERROR << endl;
         return FAIL;
     }
     
@@ -40,11 +40,6 @@ int Scheduler::init(int quantum)
     return OK;
 }
 
-int Scheduler::allocateID()
-{
-    //return NewID();
-    return Thread::NewID();
-}
 
 void Scheduler::startTimer()
 {
@@ -152,7 +147,7 @@ int Scheduler::isAlrmPending()
     //This occurs if there was an error with sigismember
     if(sigAlrmPending == -1)
     {
-       cerr << ISMEMBER_ERROR << endl;
+        cerr << ISMEMBER_ERROR << endl;
     }
     
     return sigAlrmPending;
@@ -223,7 +218,7 @@ Thread * Scheduler::getThread(int tid)
     }
     else 
     {
-        cout << "thread library error: no such thread" << std::endl;
+        cerr << THREADLIB_ERROR << " " << NO_THREAD_ERROR << endl;
         thread = nullptr;
     }
     return thread;
@@ -232,11 +227,10 @@ Thread * Scheduler::getThread(int tid)
 
 int Scheduler::spawnThread(void(*f)(), Priority pr)
 {
-       
     int newID = Thread::NewID();
     if(newID == FAIL)
     {
-        cout << "thread library error: maximum threads" << endl;
+        cerr << THREADLIB_ERROR << " " << MAX_THREADS_ERROR << endl;
         return FAIL;
     }
     _threadMap.insert({newID, (new Thread(newID, pr, f))});
@@ -244,7 +238,6 @@ int Scheduler::spawnThread(void(*f)(), Priority pr)
     return newID;
 }
 
-//Probably finished
 int Scheduler::resumeThread(Thread * thread)
 {
     //Can resume a thread only if it is suspended
@@ -256,11 +249,9 @@ int Scheduler::resumeThread(Thread * thread)
     return OK;
 }
 
-//Probably finished
 int Scheduler::suspendThread(Thread * thread)
 {
     //Sanity check, maybe redundant 
-    //cerr << "suspending thread, ID:" << thread->getID() << endl;
     if(thread->getState() == Suspended)
     {
         return OK;

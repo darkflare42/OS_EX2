@@ -34,6 +34,7 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
+    <itemPath>README</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -51,6 +52,8 @@
       <item path="PriorityQueue.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="PriorityQueue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="README" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Scheduler.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -92,6 +95,8 @@
       <item path="PriorityQueue.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="PriorityQueue.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="README" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Scheduler.cpp" ex="false" tool="1" flavor2="0">
       </item>

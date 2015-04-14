@@ -12,10 +12,6 @@ PriorityQueue::PriorityQueue() : _size(0)
     
 }
 
-PriorityQueue::PriorityQueue(const PriorityQueue& orig) 
-{
-}
-
 PriorityQueue::~PriorityQueue() 
 {
 }

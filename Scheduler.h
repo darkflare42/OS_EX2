@@ -27,20 +27,20 @@ class Scheduler {
         Scheduler();
         
         int init(int quantum);
-        std::shared_ptr<Thread> getThread(int tid);
+        Thread * getThread(int tid);
         
         //Maybe all these need to be references (& after the shared_ptr)
         int spawnThread(void (*f)(void), Priority pr);
-        int resumeThread(shared_ptr<Thread>& thread);
-        int suspendThread(shared_ptr<Thread>& thread);
-        int terminateThread(shared_ptr<Thread>& thread);
+        int resumeThread(Thread * thread);
+        int suspendThread(Thread * thread);
+        int terminateThread(Thread * thread);
         
         void startTimer();
         void resetTimer();
         void schedulerTick(int sig);
         int isAlrmPending();
-        void changeThreadQueue(shared_ptr<Thread> thread, State newState);
-        void changeRunningThread(shared_ptr<Thread> newThread);
+        void changeThreadQueue(Thread * thread, State newState);
+        void changeRunningThread(Thread * newThread);
         
         void blockSignals();
         void unblockSignals();
@@ -48,19 +48,18 @@ class Scheduler {
         
         int allocateID();
         int getRunningThreadID();
-        shared_ptr<Thread> getRunningThread();
+        Thread * getRunningThread();
         int getTotalQuantums();
     private:
         struct itimerval _tv;
         PriorityQueue _readyQueue;
         PriorityQueue _suspendedQueue;
-        //std::shared_ptr<Thread> _runningThread; //TODO can be deleted?
         int _runningThreadID;
         int _totalQuantums;
         struct sigaction action;
         sigset_t _mask;
         
-        std::map<int, shared_ptr<Thread>> _threadMap;
+        std::map<int, Thread*> _threadMap;
         
         void setTimerIntervals(int quantums);
     

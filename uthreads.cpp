@@ -34,7 +34,7 @@ int uthread_suspend(int tid){
         return FAIL;
     }
     
-    shared_ptr<Thread> thread = currSched->getThread(tid);
+    Thread * thread = currSched->getThread(tid);
     if(thread == nullptr)
     {
         currSched->unblockSignals();
@@ -43,7 +43,6 @@ int uthread_suspend(int tid){
     
     if(thread->getState() == Suspended){
         currSched->unblockSignals();
-        thread.reset();
         return OK;
     }
     else
@@ -56,25 +55,22 @@ int uthread_suspend(int tid){
 
         int errCode = currSched->suspendThread(thread);
         siglongjmp(currSched->getRunningThread()->env, 1);
-        thread.reset();
         return OK;
         
     }
     currSched->unblockSignals();
-    thread.reset();
     return OK;
 }
 
 int uthread_resume(int tid){
     
-    currSched->blockSignals();
-    shared_ptr<Thread> thread = currSched->getThread(tid);
+    //currSched->blockSignals();
+    Thread * thread = currSched->getThread(tid);
     if(thread == nullptr){
         return FAIL;
     }
     int errCode =  currSched->resumeThread(thread);
-    currSched->unblockSignals();
-    thread.reset();
+    //currSched->unblockSignals();
     return errCode;
    
 }
@@ -85,7 +81,7 @@ int uthread_terminate(int tid){
     currSched->blockSignals();
     
     
-    shared_ptr<Thread> thread = currSched->getThread(tid);
+    Thread * thread = currSched->getThread(tid);
     if(thread == nullptr){
         currSched->unblockSignals();
         return FAIL;
@@ -99,7 +95,6 @@ int uthread_terminate(int tid){
     
     int errCode =  currSched->terminateThread(thread);
     currSched->unblockSignals();
-    thread.reset();
     return errCode;
 }
 
@@ -112,7 +107,7 @@ int uthread_get_total_quantums(){
 }
 
 int uthread_get_quantums(int tid){
-    shared_ptr<Thread> thread = currSched->getThread(tid);
+    Thread * thread = currSched->getThread(tid);
     if(thread == nullptr){
         return FAIL;
     }

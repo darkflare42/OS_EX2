@@ -24,7 +24,7 @@ int Scheduler::init(int quantum){
         setTimerIntervals(quantum);
         Thread::InitiateIDList(); // TODO requires a debug.
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
-        _threadMap.insert({0, shared_ptr<Thread>(new Thread(0, ORANGE, NULL))});
+        _threadMap.insert({0, (new Thread(0, ORANGE, NULL))});
         //_threadMap.insert({0, make_shared<Thread>(Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
         
@@ -49,7 +49,7 @@ void Scheduler::startTimer(){
     //The function timerTick will be called whenever there will be a timer tick
     //signal(SIGVTALRM, timerTick);
     
-    cerr << "Starting timer" << endl;
+    //cerr << "Starting timer" << endl;
     
     action.sa_handler = timerTick;
     
@@ -67,7 +67,7 @@ void Scheduler::startTimer(){
 
 //This function will be called by the timerTick function
 void Scheduler::schedulerTick(int sig){
-    cerr << "Entered schedulerTick, signal:" << sig << endl;
+    //cerr << "Entered schedulerTick, signal:" << sig << endl;
     _totalQuantums++; //TODO: Maybe += quantum value?
     
     //We have threads that need to run, if this is empty then the running
@@ -90,7 +90,6 @@ void Scheduler::schedulerTick(int sig){
 }
 
 void Scheduler::resetTimer(){
-    cerr << "Entered reset timer" << endl;
     //Forcefully stop the timer
     if(setitimer(ITIMER_VIRTUAL, NULL, NULL)){
         //TODO: Error handling
@@ -184,7 +183,6 @@ Scheduler *currSched = new Scheduler();
 //This is declared outside the scope of the Scheduler because of the 
 //signal function constraints
 void timerTick(int sig){
-    cerr << "Entered timerTick" << endl;
     int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
     if(tempVal == 1){
         return;
@@ -192,13 +190,13 @@ void timerTick(int sig){
     
     //Call the scheduler tick function in the scheduler
     currSched->schedulerTick(sig);
-    //currSched->startTimer(); //We reset the timer each tick so as not to have
+    currSched->startTimer(); //We reset the timer each tick so as not to have
                              //timing issues
     siglongjmp(currSched->getRunningThread()->env, 1);
 }
 
-shared_ptr<Thread> Scheduler::getThread(int tid){
-    shared_ptr<Thread> thread = nullptr;
+Thread * Scheduler::getThread(int tid){
+    Thread * thread = nullptr;
     if (_threadMap.find(tid) != _threadMap.end()) {
         thread = _threadMap.at(tid);//_threadMap[tid];
     }
@@ -207,87 +205,60 @@ shared_ptr<Thread> Scheduler::getThread(int tid){
         thread = nullptr;
     }
     return thread;
-    //std::shared_ptr<Thread> temp = make_shared<Thread>(_threadMap[tid]);
-    //return temp;
+    
 }
 
 int Scheduler::spawnThread(void(*f)(), Priority pr){
     
     
     int newID = Thread::NewID();
-    cerr << "spawning thread, ID:" << newID << endl;
     if(newID == FAIL){
         cout << "thread library error: maximum threads" << endl;
         return FAIL;
     }
-    _threadMap.insert({newID, shared_ptr<Thread>(new Thread(newID, pr, f))});
-    //_threadMap.insert({newID, make_shared<Thread>(Thread(newID, pr, f))});
+    _threadMap.insert({newID, (new Thread(newID, pr, f))});
     _readyQueue.push(_threadMap[newID]);
     return newID;
 }
 
 //Probably finished
-int Scheduler::resumeThread(shared_ptr<Thread>& thread){
-    cerr << "resuming thread, ID:" << thread->getID() << endl;
+int Scheduler::resumeThread(Thread * thread){
     //Can resume a thread only if it is suspended
     if(thread->getState() == Suspended)
     {
         changeThreadQueue(thread, Ready);
     }
-    thread.reset();
+    
     return OK;
 }
 
 //Probably finished
-int Scheduler::suspendThread(shared_ptr<Thread>& thread){
+int Scheduler::suspendThread(Thread * thread){
     //Sanity check, maybe redundant 
-    cerr << "suspending thread, ID:" << thread->getID() << endl;
+    //cerr << "suspending thread, ID:" << thread->getID() << endl;
     if(thread->getState() == Suspended){
         return OK;
     }    
-    //Save the current thread environment
-    //int tempVal = sigsetjmp(thread->env, 1);
-    //if(tempVal == 1){
-    //    return OK;
-    //}
-    
-    //cout << _suspendedQueue.size() << std::endl;
-    //cout << _readyQueue.size() << std::endl;
-    
+   
     //Change the queue
     bool isRunning = (thread->getState()== Running);
     changeThreadQueue(thread, Suspended);
-    
-    //cout << _suspendedQueue.size() << std::endl;
-    //cout << _readyQueue.size() << std::endl;
-
+   
     
     //If the thread suspended was running, the timer needs to be reset and a new
     //thread should be pushed to Running with full quantums
     if(isRunning){
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
     }
-    //cout << _suspendedQueue.size() << std::endl;
-    //cout << _readyQueue.size() << std::endl;
     
-    //siglongjmp(thread->env, 1);
-    //siglongjmp(getThread(_runningThreadID)->env, 1);
     
     return OK;
 }
 
 
 
-int Scheduler::terminateThread(shared_ptr<Thread>& thread){
-    cerr << "terminating thread, ID:" << thread->getID() << endl;
-    //TODO: removeid is also in destructor of Thread, check what happens, maybe
-    //delete thread (deleting the actual thread and all shared ptrs) ??
+int Scheduler::terminateThread(Thread * thread){
     
-    // Oded: I removed removeID from the destructor because the (seemingly) 
-    // unexpected behaviour of shared_ptr, where we won't know for 100% when the
-    // dtor will be called.
-    // Also, the moment you erase the thread from the map, its gone.
-    // Is it ok you call siglongjmp after you deleted the thread?
     bool isRunning = (thread->getState() == Running);
     Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
@@ -298,10 +269,8 @@ int Scheduler::terminateThread(shared_ptr<Thread>& thread){
     return OK;
 }
 
-void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
-    //TODO: debug.
+void Scheduler::changeThreadQueue(Thread * thread, State newState){
     //Assumes relocation of thread is always successful and updates the correct state.
-    
     // Remove from old state.
     switch(thread->getState()) {
         case Running:
@@ -330,8 +299,7 @@ void Scheduler::changeThreadQueue(shared_ptr<Thread> thread, State newState){
     }
 }
 
-void Scheduler::changeRunningThread(shared_ptr<Thread> newThread){
-    cerr << "move ID:" << newThread->getID() << " to running" << endl;
+void Scheduler::changeRunningThread(Thread * newThread){
     //Move the current running thread to ready queue
     if(_threadMap.find(_runningThreadID) != _threadMap.end())
     {
@@ -340,7 +308,6 @@ void Scheduler::changeRunningThread(shared_ptr<Thread> newThread){
     //Move the new thread into the running state
     _runningThreadID = newThread->getID();
     newThread->increaseTotalQuantums(1); //Check if need += quantum value
-    cerr << "finished moving ID:" << newThread->getID() << " to running" << endl;
 }
 
 int Scheduler::getRunningThreadID(){
@@ -351,7 +318,7 @@ int Scheduler::getTotalQuantums(){
     return _totalQuantums;
 }
 
-shared_ptr<Thread> Scheduler::getRunningThread(){
+Thread * Scheduler::getRunningThread(){
     return getThread(_runningThreadID);
 }
 
@@ -359,6 +326,6 @@ void Scheduler::setTimerIntervals(int quantums){
     _tv.it_value.tv_sec = 0;//quantums / USECS_TO_SEC;
     _tv.it_value.tv_usec = quantums;// % USECS_TO_SEC;
     _tv.it_interval.tv_sec = 0;//quantums / USECS_TO_SEC;
-    _tv.it_interval.tv_usec = quantums;
+    _tv.it_interval.tv_usec = 0;
     
 }

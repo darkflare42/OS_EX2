@@ -20,14 +20,14 @@ public:
     virtual ~PriorityQueue();
     bool empty();
     int size();
-    void push(std::shared_ptr<Thread> threadPtr);
-    std::shared_ptr<Thread> pop();
-    void pop(std::shared_ptr<Thread> thread);
+    void push(Thread * threadPtr);
+    Thread * pop();
+    void pop(Thread * thread);
     
 private:
-    std::list<std::shared_ptr<Thread>> redQ;
-    std::list<std::shared_ptr<Thread>> orangeQ;
-    std::list<std::shared_ptr<Thread>> greenQ;
+    std::list<Thread *> redQ;
+    std::list<Thread *> orangeQ;
+    std::list<Thread *> greenQ;
     int _size;
 };
 

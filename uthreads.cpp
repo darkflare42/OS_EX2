@@ -1,114 +1,120 @@
 #include "uthreads.h"
 #include "Scheduler.h"
 
-extern Scheduler * currSched;
+extern Scheduler * gCurrSched;
 
 using namespace std;
 
 
 //Initializes the scheduler using the quantum usecs
-int uthread_init(int quantum_usecs){
-    return currSched->init(quantum_usecs);
+int uthread_init(int quantum_usecs)
+{
+    return gCurrSched->init(quantum_usecs);
 }
 
-int uthread_spawn(void (*f)(void), Priority pr){
-    currSched->blockSignals();
+int uthread_spawn(void (*f)(void), Priority pr)
+{
+    gCurrSched->blockSignals();
     
-    int tID =  currSched->spawnThread(f, pr);
+    int tID =  gCurrSched->spawnThread(f, pr);
     
-    currSched->unblockSignals();
+    gCurrSched->unblockSignals();
     return tID;
     
 }
 
 
-int uthread_suspend(int tid){
-    //TODO: validity check and stuff (not as simple as this)
-    
-    currSched->blockSignals();
+int uthread_suspend(int tid)
+{
+    gCurrSched->blockSignals();
     
     //Cannot suspend the main Thread
-    if(tid == 0){
+    if(tid == 0)
+    {
         cout << "thread library error: cannot suspend main thread" << endl;
-        currSched->unblockSignals();
+        gCurrSched->unblockSignals();
         return FAIL;
     }
     
-    Thread * thread = currSched->getThread(tid);
+    Thread * thread = gCurrSched->getThread(tid);
     if(thread == nullptr)
     {
-        currSched->unblockSignals();
+        gCurrSched->unblockSignals();
         return FAIL;
     }
     
-    if(thread->getState() == Suspended){
-        currSched->unblockSignals();
+    if(thread->getState() == Suspended)
+    {
+        gCurrSched->unblockSignals();
         return OK;
     }
     else
     {
-        currSched->unblockSignals();
-        int tempVal = sigsetjmp(currSched->getRunningThread()->_env, 1);
-        if(tempVal == 1){
+        gCurrSched->unblockSignals();
+        int tempVal = sigsetjmp(gCurrSched->getRunningThread()->_env, 1);
+        if(tempVal == 1)
+        {
             return OK;
         }
 
-        int errCode = currSched->suspendThread(thread);
-        siglongjmp(currSched->getRunningThread()->_env, 1);
+        int errCode = gCurrSched->suspendThread(thread);
+        siglongjmp(gCurrSched->getRunningThread()->_env, 1);
         return OK;
         
     }
-    currSched->unblockSignals();
+    gCurrSched->unblockSignals();
     return OK;
 }
 
-int uthread_resume(int tid){
-    
-    Thread * thread = currSched->getThread(tid);
-    if(thread == nullptr){
+int uthread_resume(int tid)
+{
+    Thread * thread = gCurrSched->getThread(tid);
+    if(thread == nullptr)
+    {
         return FAIL;
     }
-    int errCode =  currSched->resumeThread(thread);
+    int errCode =  gCurrSched->resumeThread(thread);
     return errCode;
-   
 }
 
-int uthread_terminate(int tid){
-    //TODO: validity check and stuff
-    
-    currSched->blockSignals();
-    
-    
-    Thread * thread = currSched->getThread(tid);
-    if(thread == nullptr){
-        currSched->unblockSignals();
+int uthread_terminate(int tid)
+{
+    gCurrSched->blockSignals();
+    Thread * thread = gCurrSched->getThread(tid);
+    if(thread == nullptr)
+    {
+        gCurrSched->unblockSignals();
         return FAIL;
     }
     
     //We are terminating the main thread
-    if(tid == 0){
-        delete currSched; //TODO: add proper destructor for scheduler
+    if(tid == 0)
+    {
+        delete gCurrSched; //TODO: add proper destructor for scheduler
         exit(0);
     }
     
-    int errCode =  currSched->terminateThread(thread);
-    currSched->unblockSignals();
+    int errCode =  gCurrSched->terminateThread(thread);
+    gCurrSched->unblockSignals();
     return errCode;
 }
 
-int uthread_get_tid(){
-    return currSched->getRunningThreadID();
+int uthread_get_tid()
+{
+    return gCurrSched->getRunningThreadID();
 }
 
-int uthread_get_total_quantums(){
-    return currSched->getTotalQuantums();
+int uthread_get_total_quantums()
+{
+    return gCurrSched->getTotalQuantums();
 }
 
-int uthread_get_quantums(int tid){
-    Thread * thread = currSched->getThread(tid);
-    if(thread == nullptr){
+int uthread_get_quantums(int tid)
+{
+    Thread * thread = gCurrSched->getThread(tid);
+    if(thread == nullptr)
+    {
         return FAIL;
     }
-    return thread->getTotalQuantums();
-    
+    return thread->getTotalQuantums();  
 }

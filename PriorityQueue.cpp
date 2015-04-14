@@ -7,24 +7,31 @@
 
 #include "PriorityQueue.h"
 
-PriorityQueue::PriorityQueue() : _size(0) {
+PriorityQueue::PriorityQueue() : _size(0) 
+{
+    
 }
 
-PriorityQueue::PriorityQueue(const PriorityQueue& orig) {
+PriorityQueue::PriorityQueue(const PriorityQueue& orig) 
+{
 }
 
-PriorityQueue::~PriorityQueue() {
+PriorityQueue::~PriorityQueue() 
+{
 }
 
-bool PriorityQueue::empty () {
+bool PriorityQueue::empty () 
+{
     return (_size == 0);
 }
 
-int PriorityQueue::size () {
+int PriorityQueue::size () 
+{
     return _size;
 }
 
-void PriorityQueue::push(Thread * threadPtr) {
+void PriorityQueue::push(Thread * threadPtr) 
+{
     switch(threadPtr->getPriority()) {
         case RED:
             _redQ.push_back(threadPtr);
@@ -39,36 +46,37 @@ void PriorityQueue::push(Thread * threadPtr) {
     _size++;
 }
 
-Thread * PriorityQueue::pop(){
+Thread * PriorityQueue::pop()
+{
     Thread * temp = nullptr;
-    if (_redQ.size() > 0) {
+    if (_redQ.size() > 0) 
+    {
         temp = _redQ.front();
         _redQ.pop_front();
     }
-    else if (_orangeQ.size() > 0) {
+    else if (_orangeQ.size() > 0) 
+    {
         temp = _orangeQ.front();
         _orangeQ.pop_front();
     }
-    else if (_greenQ.size() > 0) {
+    else if (_greenQ.size() > 0) 
+    {
         temp = _greenQ.front();
         _greenQ.pop_front();
     }
-    if (temp != nullptr) {
+    if (temp != nullptr) 
+    {
         _size--;
     }
     return temp;
 }
 
-/**
- * Remove a shared_ptr from a queue, if it is in the Priority queue,
- * otherwise does nothing.
- * @param thread
- * @return void
- */
-void PriorityQueue::pop(Thread * thread){
+void PriorityQueue::pop(Thread * thread)
+{
     
     std::list<Thread *> *trgtList;
-    switch (thread->getPriority()) {
+    switch (thread->getPriority()) 
+    {
         case RED:
             trgtList = &_redQ;
             break;
@@ -82,7 +90,8 @@ void PriorityQueue::pop(Thread * thread){
     
     for (auto i = trgtList->begin() ; i != trgtList->end() ; i++)
     {
-        if (thread == *i) {
+        if (thread == *i) 
+        {
             trgtList->erase(i);
             _size--;
             break;

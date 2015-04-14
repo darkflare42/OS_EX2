@@ -56,10 +56,12 @@ address_t translate_address(address_t addr)
 
 Thread::Thread(int id, Priority prio, void (*entry)(void)) : 
     _stack(new char[STACK_SIZE]()), _id(id), _totalQuantums(0), 
-        _prio(prio),_currState(Ready), _entry(entry) {
+        _prio(prio),_currState(Ready), _entry(entry) 
+{
     
     //Main thread creation
-    if(id == MAIN_THREAD_ID){
+    if(id == MAIN_THREAD_ID)
+    {
         _totalQuantums = 1;
         return;
     }
@@ -69,18 +71,18 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
     pc = (address_t)entry;
     
     
-    if(sigsetjmp(_env, 1)){
+    if(sigsetjmp(_env, 1))
+    {
         //TODO: Error handling
     }
     
     _env->__jmpbuf[JB_SP] = translate_address(sp);
     _env->__jmpbuf[JB_PC] = translate_address(pc);
     
-    if(sigemptyset(&_env->__saved_mask)){
+    if(sigemptyset(&_env->__saved_mask))
+    {
         //TODO: Error handling
     }
-    
-    
 }
 
 Thread::Thread(const Thread& orig):
@@ -88,20 +90,23 @@ Thread::Thread(const Thread& orig):
     _prio(orig._prio), _currState(orig._currState)
 {
     	memcpy(_env, orig._env, sizeof(sigjmp_buf));
-    
 }
 
-Thread::~Thread() {
+Thread::~Thread() 
+{
     delete _stack;
 }
 
-Priority Thread::getPriority() {
+Priority Thread::getPriority() 
+{
     return _prio;
 }
 
 
-void Thread::InitiateIDList() {
-    if (gIdList.size() != 0) {
+void Thread::InitiateIDList() 
+{
+    if (gIdList.size() != 0) 
+    {
         throw std::logic_error("ID list already initialized!");
     }
     for (int i = 0 ; i < MAX_THREAD_NUM ; i++)
@@ -110,7 +115,8 @@ void Thread::InitiateIDList() {
     }
 }
 
-void Thread::RemoveID(int toRemove) {
+void Thread::RemoveID(int toRemove) 
+{
     std::list<int>::iterator i = gIdList.begin();
     for ( ; i != gIdList.end() ; i++)
     {
@@ -129,7 +135,8 @@ void Thread::RemoveID(int toRemove) {
  * Returns the lowest available ID.
  * @return lowest available ID. -1 if none is available.
  */
-int Thread::NewID() {
+int Thread::NewID() 
+{
     if (gIdList.size() == 0)
     {
         return -1;
@@ -139,22 +146,27 @@ int Thread::NewID() {
     return temp;
 }
 
-void Thread::increaseTotalQuantums(int value){
+void Thread::increaseTotalQuantums(int value)
+{
     _totalQuantums+=value;
 }
 
-int Thread::getTotalQuantums() {
+int Thread::getTotalQuantums() 
+{
     return _totalQuantums;
 }
 
-int Thread::getID(){
+int Thread::getID()
+{
     return _id;
 }
 
-void Thread::setState(State stateToSet){
+void Thread::setState(State stateToSet)
+{
     _currState = stateToSet;
 }
 
-State Thread::getState(){
+State Thread::getState()
+{
     return _currState;
 }

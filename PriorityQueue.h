@@ -1,10 +1,3 @@
-/* 
- * File:   PriorityQueue.h
- * Author: odedex
- *
- * Created on April 4, 2015, 11:31 AM
- */
-
 #ifndef PRIORITYQUEUE_H
 #define	PRIORITYQUEUE_H
 
@@ -16,14 +9,6 @@
 class PriorityQueue 
 {
 public:
-    /**
-    * Remove a shared_ptr from a queue, if it is in the Priority queue,
-    * otherwise does nothing.
-    * @param thread
-    * @return void
-    */
-    
-    
     /**
      * Standard constructor.
      */

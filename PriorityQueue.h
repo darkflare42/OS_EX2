@@ -1,3 +1,20 @@
+/**
+* @file PriorityQueue.h
+* @author Oded Abramas <odedab@cs.huji.ac.il>
+* @version 1.0
+* @date 14 Apr 2015
+*
+* @brief Priority Queue class implementing support for 3 different priorities: Green, Orange and Red.
+*        The class wraps 3 standard library lists and provides a standard queue interface.
+*
+* @section LICENSE
+* This program is not a free software.
+*
+* @section DESCRIPTION
+* USAGE: None.
+* Process: None.
+* Output: None.
+*/
 #ifndef PRIORITYQUEUE_H
 #define	PRIORITYQUEUE_H
 

@@ -24,7 +24,7 @@ int Scheduler::init(int quantum){
         setTimerIntervals(quantum);
         Thread::InitiateIDList(); // TODO requires a debug.
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
-        _threadMap.insert({0, (new Thread(0, ORANGE, NULL))});
+        _threadMap.insert({0, (new Thread(MAIN_THREAD_ID, ORANGE, NULL))});
         //_threadMap.insert({0, make_shared<Thread>(Thread(0, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
         
@@ -51,12 +51,12 @@ void Scheduler::startTimer(){
     
     //cerr << "Starting timer" << endl;
     
-    action.sa_handler = timerTick;
+    _action.sa_handler = timerTick;
     
-    action.sa_flags = 0;
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGVTALRM);
-    sigaction(SIGVTALRM, &action, NULL);
+    _action.sa_flags = 0;
+    sigemptyset(&_action.sa_mask);
+    sigaddset(&_action.sa_mask, SIGVTALRM);
+    sigaction(SIGVTALRM, &_action, NULL);
     //Note: _tv is initiated in the init function, therefore we can use it 
     //in the call to setitimer
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL)){
@@ -183,7 +183,7 @@ Scheduler *currSched = new Scheduler();
 //This is declared outside the scope of the Scheduler because of the 
 //signal function constraints
 void timerTick(int sig){
-    int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
+    int tempVal = sigsetjmp(currSched->getRunningThread()->_env, 1);
     if(tempVal == 1){
         return;
     }
@@ -192,13 +192,13 @@ void timerTick(int sig){
     currSched->schedulerTick(sig);
     currSched->startTimer(); //We reset the timer each tick so as not to have
                              //timing issues
-    siglongjmp(currSched->getRunningThread()->env, 1);
+    siglongjmp(currSched->getRunningThread()->_env, 1);
 }
 
 Thread * Scheduler::getThread(int tid){
     Thread * thread = nullptr;
     if (_threadMap.find(tid) != _threadMap.end()) {
-        thread = _threadMap.at(tid);//_threadMap[tid];
+        thread = _threadMap.at(tid);
     }
     else {
         cout << "thread library error: no such thread" << std::endl;
@@ -264,7 +264,7 @@ int Scheduler::terminateThread(Thread * thread){
     _threadMap.erase(thread->getID());
     if(isRunning){
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
-        siglongjmp(getRunningThread()->env, 1);
+        siglongjmp(getRunningThread()->_env, 1);
     }
     return OK;
 }
@@ -323,7 +323,7 @@ Thread * Scheduler::getRunningThread(){
 }
 
 void Scheduler::setTimerIntervals(int quantums){
-    _tv.it_value.tv_sec = 0;//quantums / USECS_TO_SEC;
+    _tv.it_value.tv_sec = quantums / USECS_TO_SEC;
     _tv.it_value.tv_usec = quantums;// % USECS_TO_SEC;
     _tv.it_interval.tv_sec = 0;//quantums / USECS_TO_SEC;
     _tv.it_interval.tv_usec = 0;

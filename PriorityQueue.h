@@ -13,21 +13,24 @@
 #include <memory>
 #include <list>
 
-class PriorityQueue {
+class PriorityQueue 
+{
 public:
     PriorityQueue();
     PriorityQueue(const PriorityQueue& orig);
     virtual ~PriorityQueue();
-    bool empty();
-    int size();
-    void push(Thread * threadPtr);
+    
     Thread * pop();
+    void push(Thread * threadPtr);
     void pop(Thread * thread);
     
+    bool empty();
+    int size();
+    
 private:
-    std::list<Thread *> redQ;
-    std::list<Thread *> orangeQ;
-    std::list<Thread *> greenQ;
+    std::list<Thread *> _redQ;
+    std::list<Thread *> _orangeQ;
+    std::list<Thread *> _greenQ;
     int _size;
 };
 

@@ -59,7 +59,7 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
         _prio(prio),_currState(Ready), _entry(entry) {
     
     //Main thread creation
-    if(entry == NULL){
+    if(id == MAIN_THREAD_ID){
         _totalQuantums = 1;
         return;
     }
@@ -69,14 +69,14 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
     pc = (address_t)entry;
     
     
-    if(sigsetjmp(env, 1)){
+    if(sigsetjmp(_env, 1)){
         //TODO: Error handling
     }
     
-    env->__jmpbuf[JB_SP] = translate_address(sp);
-    env->__jmpbuf[JB_PC] = translate_address(pc);
+    _env->__jmpbuf[JB_SP] = translate_address(sp);
+    _env->__jmpbuf[JB_PC] = translate_address(pc);
     
-    if(sigemptyset(&env->__saved_mask)){
+    if(sigemptyset(&_env->__saved_mask)){
         //TODO: Error handling
     }
     
@@ -87,7 +87,7 @@ Thread::Thread(const Thread& orig):
     _stack(orig._stack), _id(orig._id), _totalQuantums(orig._totalQuantums),
     _prio(orig._prio), _currState(orig._currState)
 {
-    	memcpy(env, orig.env, sizeof(sigjmp_buf));
+    	memcpy(_env, orig._env, sizeof(sigjmp_buf));
     
 }
 
@@ -101,28 +101,28 @@ Priority Thread::getPriority() {
 
 
 void Thread::InitiateIDList() {
-    if (idList.size() != 0) {
+    if (gIdList.size() != 0) {
         throw std::logic_error("ID list already initialized!");
     }
     for (int i = 0 ; i < MAX_THREAD_NUM ; i++)
     {
-        idList.emplace_back(i);
+        gIdList.emplace_back(i);
     }
 }
 
 void Thread::RemoveID(int toRemove) {
-    std::list<int>::iterator i = idList.begin();
-    for ( ; i != idList.end() ; i++)
+    std::list<int>::iterator i = gIdList.begin();
+    for ( ; i != gIdList.end() ; i++)
     {
         if (toRemove < *i)
         {
-            idList.insert(i, toRemove);
+            gIdList.insert(i, toRemove);
             break;
         }
     }
-    if (i == idList.end())
+    if (i == gIdList.end())
     {
-        idList.push_back(toRemove);
+        gIdList.push_back(toRemove);
     }
 }
 /**
@@ -130,12 +130,12 @@ void Thread::RemoveID(int toRemove) {
  * @return lowest available ID. -1 if none is available.
  */
 int Thread::NewID() {
-    if (idList.size() == 0)
+    if (gIdList.size() == 0)
     {
         return -1;
     }
-    int temp = idList.front();
-    idList.erase(idList.begin());
+    int temp = gIdList.front();
+    gIdList.erase(gIdList.begin());
     return temp;
 }
 

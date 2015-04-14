@@ -9,13 +9,14 @@
 #define	THREADUTILS_H
 
 
-enum ERRCODE{
+enum ERRCODE
+{
     OK = 0,
-    FAIL = -1,
-           
+    FAIL = -1,           
 };
 
-enum State{
+enum State
+{
     Running = 0,
     Ready = 1,
     Suspended = 2,

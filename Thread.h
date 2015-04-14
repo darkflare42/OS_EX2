@@ -18,14 +18,13 @@
 #define SECOND 1000000
 #define STACK_SIZE 4096
 
-
-using namespace std;
-
-class Thread {
+class Thread 
+{
 public:
     Thread(int id, Priority prio, void (*entry)(void));
     Thread(const Thread& orig);
     ~Thread();
+    
     Priority getPriority();
     
     int getTotalQuantums();
@@ -38,20 +37,21 @@ public:
     static int NewID();
     static void RemoveID(int toRemove);
     
+    
+    //Public members for thread (as instructed)
     char * _stack;
-    sigjmp_buf env;
+    sigjmp_buf _env;
     
 private:
     
-    
     int _id;
-    int _totalQuantums; // TODO what is this?
+    int _totalQuantums;
     Priority _prio;
     State _currState;
     void (*_entry)(void);
     
 };
 
-static std::list<int> idList;
+static std::list<int> gIdList;
 #endif	/* THREAD_H */
 

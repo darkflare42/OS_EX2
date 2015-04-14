@@ -27,13 +27,13 @@ int PriorityQueue::size () {
 void PriorityQueue::push(Thread * threadPtr) {
     switch(threadPtr->getPriority()) {
         case RED:
-            redQ.push_back(threadPtr);
+            _redQ.push_back(threadPtr);
             break;
         case ORANGE:
-            orangeQ.push_back(threadPtr);
+            _orangeQ.push_back(threadPtr);
             break;
         case GREEN:
-            greenQ.push_back(threadPtr);
+            _greenQ.push_back(threadPtr);
             break;
     }
     _size++;
@@ -41,17 +41,17 @@ void PriorityQueue::push(Thread * threadPtr) {
 
 Thread * PriorityQueue::pop(){
     Thread * temp = nullptr;
-    if (redQ.size() > 0) {
-        temp = redQ.front();
-        redQ.pop_front();
+    if (_redQ.size() > 0) {
+        temp = _redQ.front();
+        _redQ.pop_front();
     }
-    else if (orangeQ.size() > 0) {
-        temp = orangeQ.front();
-        orangeQ.pop_front();
+    else if (_orangeQ.size() > 0) {
+        temp = _orangeQ.front();
+        _orangeQ.pop_front();
     }
-    else if (greenQ.size() > 0) {
-        temp = greenQ.front();
-        greenQ.pop_front();
+    else if (_greenQ.size() > 0) {
+        temp = _greenQ.front();
+        _greenQ.pop_front();
     }
     if (temp != nullptr) {
         _size--;
@@ -70,13 +70,13 @@ void PriorityQueue::pop(Thread * thread){
     std::list<Thread *> *trgtList;
     switch (thread->getPriority()) {
         case RED:
-            trgtList = &redQ;
+            trgtList = &_redQ;
             break;
         case ORANGE:
-            trgtList = &orangeQ;
+            trgtList = &_orangeQ;
             break;
         case GREEN:
-            trgtList = &greenQ;
+            trgtList = &_greenQ;
             break;
     }
     

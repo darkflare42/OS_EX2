@@ -48,13 +48,13 @@ int uthread_suspend(int tid){
     else
     {
         currSched->unblockSignals();
-        int tempVal = sigsetjmp(currSched->getRunningThread()->env, 1);
+        int tempVal = sigsetjmp(currSched->getRunningThread()->_env, 1);
         if(tempVal == 1){
             return OK;
         }
 
         int errCode = currSched->suspendThread(thread);
-        siglongjmp(currSched->getRunningThread()->env, 1);
+        siglongjmp(currSched->getRunningThread()->_env, 1);
         return OK;
         
     }
@@ -64,13 +64,11 @@ int uthread_suspend(int tid){
 
 int uthread_resume(int tid){
     
-    //currSched->blockSignals();
     Thread * thread = currSched->getThread(tid);
     if(thread == nullptr){
         return FAIL;
     }
     int errCode =  currSched->resumeThread(thread);
-    //currSched->unblockSignals();
     return errCode;
    
 }

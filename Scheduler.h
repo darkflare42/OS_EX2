@@ -18,45 +18,42 @@
 #include <map>
 
 #define DEFAULT_QUANTUM 2
-#define USECS_TO_SEC 1000000
+#define USECS_TO_SEC 1000000 //TODO: Check if to remove
 #define SIG_SPEC_ALRM SIGVTALRM + 1
 
-class Scheduler {
+class Scheduler 
+{
     public: 
         Scheduler(int quantum);
         Scheduler();
-        
+       
         int init(int quantum);
-        Thread * getThread(int tid);
+ 
+        void startTimer();
+        void resetTimer();
+        void schedulerTick(int sig);
+        void changeThreadQueue(Thread * thread, State newState);
+        void changeRunningThread(Thread * newThread);
+        void blockSignals();
+        void unblockSignals();
         
-        //Maybe all these need to be references (& after the shared_ptr)
         int spawnThread(void (*f)(void), Priority pr);
         int resumeThread(Thread * thread);
         int suspendThread(Thread * thread);
         int terminateThread(Thread * thread);
-        
-        void startTimer();
-        void resetTimer();
-        void schedulerTick(int sig);
         int isAlrmPending();
-        void changeThreadQueue(Thread * thread, State newState);
-        void changeRunningThread(Thread * newThread);
-        
-        void blockSignals();
-        void unblockSignals();
-        
-        
         int allocateID();
         int getRunningThreadID();
-        Thread * getRunningThread();
         int getTotalQuantums();
+        Thread * getRunningThread();
+        Thread * getThread(int tid);
     private:
         struct itimerval _tv;
         PriorityQueue _readyQueue;
         PriorityQueue _suspendedQueue;
         int _runningThreadID;
         int _totalQuantums;
-        struct sigaction action;
+        struct sigaction _action;
         sigset_t _mask;
         
         std::map<int, Thread*> _threadMap;

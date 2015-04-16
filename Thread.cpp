@@ -55,13 +55,14 @@ address_t translate_address(address_t addr)
 
 
 Thread::Thread(int id, Priority prio, void (*entry)(void)) : 
-    _stack(new char[STACK_SIZE]()), _id(id), _totalQuantums(0), 
+    _stack(new char[STACK_SIZE]()), _id(id), _threadQuantums(0), 
         _prio(prio),_currState(Ready), _entry(entry) 
 {
     
     //Main thread creation
     if(id == MAIN_THREAD_ID)
     {
+        _threadQuantums = 1;
         return;
     }
     
@@ -85,7 +86,7 @@ Thread::Thread(int id, Priority prio, void (*entry)(void)) :
 }
 
 Thread::Thread(const Thread& orig):
-    _stack(orig._stack), _id(orig._id), _totalQuantums(orig._totalQuantums),
+    _stack(orig._stack), _id(orig._id), _threadQuantums(orig._threadQuantums),
     _prio(orig._prio), _currState(orig._currState)
 {
     	memcpy(_env, orig._env, sizeof(sigjmp_buf));
@@ -147,12 +148,12 @@ int Thread::NewID()
 
 void Thread::increaseTotalQuantums(int value)
 {
-    _totalQuantums+=value;
+    _threadQuantums+=value;
 }
 
 int Thread::getTotalQuantums() 
 {
-    return _totalQuantums;
+    return _threadQuantums;
 }
 
 int Thread::getID()

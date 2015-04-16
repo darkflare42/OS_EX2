@@ -51,6 +51,11 @@ public:
     * Default ctor
     */
     Scheduler();
+    
+    /**
+     * Destructor
+     */
+    ~Scheduler();
 
     /**
     * Initializes the Scheduler class according to the given quantums

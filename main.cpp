@@ -1,9 +1,7 @@
 /*
- * test1.cpp
+ * test4.cpp
  *
- *	test suspends and resume
- *
- *  Created on: Apr 6, 2015
+ *  Created on: Apr 8, 2015
  *      Author: roigreenberg
  */
 
@@ -22,61 +20,32 @@
 
 using namespace std;
 
-
 void f (void)
 {
-	int i = 1;
-	int j = 0;
 	while(1)
 	{
-		if (i == uthread_get_quantums(uthread_get_tid()))
-		{
-			cout << "f" << "  q:  " << i << endl;
-			if (i == 3 && j == 0)
-			{
-				j++;
-				cout << "          f suspend by f" << endl;
-				uthread_suspend(uthread_get_tid());
-			}
-			if (i == 6 && j == 1)
-			{
-				j++;
-				cout << "          g resume by f" << endl;
-				uthread_resume(2);
-			}
-			if (i == 8 && j == 2)
-			{
-				j++;
-				cout << "          **f end**" << endl;
-				uthread_terminate(uthread_get_tid());
-				return;
-			}
-			i++;
-		}
+//		cout << "f" << endl;
+		uthread_suspend(1);
 	}
 }
 
 void g (void)
 {
-	int i = 1;
-	int j = 0;
 	while(1)
 	{
-		if (i == uthread_get_quantums(uthread_get_tid()))
-		{
-			cout << "g" << "  q:  " << i << endl;
-			if (i == 11 && j == 0)
-			{
-				j++;
-				cout << "          **g end**" << endl;
-				uthread_terminate(uthread_get_tid());
-				return;
-			}
-			i++;
-		}
+//		cout << "g" << endl;
+		uthread_suspend(2);
 	}
 }
 
+void h (void)
+{
+	while(1)
+	{
+//		cout << "h" << endl;
+		uthread_suspend(3);
+	}
+}
 
 int main(void)
 {
@@ -85,64 +54,54 @@ int main(void)
 		return 0;
 	}
 
-	int i = 1;
-	int j = 0;
-	while(1)
+	uthread_spawn(f,RED);
+	uthread_spawn(g,RED);
+	uthread_spawn(h,RED);
+
+	while(uthread_get_total_quantums() < 10)
 	{
-		if (i == uthread_get_quantums(uthread_get_tid()))
-		{
-			cout << "m" << "  q:  " << i << endl;
-			if (i == 3 && j == 0)
-			{
-				j++;
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
-			}
-			if (i == 6 && j == 1)
-			{
-				j++;
-				cout << "          g suspend by main" << endl;
-				uthread_suspend(2);
-				cout << "          g suspend again by main" << endl;
-				uthread_suspend(2);
-			}
-			if (i == 9 && j == 2)
-			{
-				j++;
-				cout << "          f resume by main" << endl;
-				uthread_resume(1);
-				cout << "          f resume again by main" << endl;
-				uthread_resume(1);
-			}
-			if (i == 13 && j == 3)
-			{
-				j++;
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          f suspend by main" << endl;
-				uthread_suspend(1);
-			}
-			if (i == 17 && j == 4)
-			{
-				j++;
-				cout << "          spawn g at (2) " << uthread_spawn(g, RED) << endl;
-				cout << "          f terminate by main" << endl;
-				uthread_terminate(1);
-				cout << "          spawn f at (1) " << uthread_spawn(f, RED) << endl;
-				cout << "          f suspend by main" << endl;
-				uthread_suspend(1);
-			}
-			if (i == 20 && j == 5)
-			{
-				j++;
-				cout << "          ******end******" << endl;
-				cout << "total quantums:  " << uthread_get_total_quantums() << endl;
-				uthread_terminate(0);
-				return 0;
-			}
-			i++;
-		}
+		uthread_resume(1);
+		uthread_resume(2);
+		uthread_resume(3);
 	}
-	cout << "end" << endl;
+
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
+
+	uthread_suspend(2);
+
+	while(uthread_get_total_quantums() < 20)
+		{
+			uthread_resume(1);
+			uthread_resume(3);
+		}
+
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
+
+	uthread_resume(2);
+
+	while(uthread_get_total_quantums() < 30)
+	{
+		uthread_resume(1);
+		uthread_resume(2);
+		uthread_resume(3);
+	}
+
+	cout << uthread_get_quantums(0) << " + " << endl;
+	cout << uthread_get_quantums(1) << " + " << endl;
+	cout << uthread_get_quantums(2) << " + " << endl;
+	cout << uthread_get_quantums(3) << endl;
+	cout << " = " << uthread_get_total_quantums() << endl;
+
+
+	uthread_terminate(0);
 	return 0;
 }
 

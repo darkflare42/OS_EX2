@@ -16,7 +16,7 @@ PriorityQueue::~PriorityQueue()
 {
 }
 
-bool PriorityQueue::empty () 
+bool PriorityQueue::isEmpty () 
 {
     return (_size == 0);
 }
@@ -93,4 +93,11 @@ void PriorityQueue::pop(Thread * thread)
             break;
         }
     }
+}
+
+void PriorityQueue::empty()
+{
+    _redQ.clear();
+    _orangeQ.clear();
+    _greenQ.clear();
 }

@@ -3,12 +3,6 @@
 
 using namespace std;
 
-
-//Scheduler::Scheduler(int quantum) : 
-//   _totalQuantums(0)
-//{
-//}
-
 Scheduler::Scheduler():
     _totalQuantums(0)
 {
@@ -29,7 +23,6 @@ int Scheduler::init(int quantum)
         _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
         _threadMap.insert({0, (new Thread(MAIN_THREAD_ID, ORANGE, NULL))});
         _threadMap[0]->setState(Running);
-        
         startTimer();
     }
     catch(...)
@@ -57,8 +50,9 @@ void Scheduler::startTimer()
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL))
     {
         cerr << SETTIMER_ERROR << endl;
+        throw std::invalid_argument(SETTIMER_ERROR);
+        
     }
-
 }
 
 //This function will be called by the timerTick function
@@ -68,7 +62,7 @@ void Scheduler::schedulerTick(int sig)
     
     //We have threads that need to run, if this is empty then the running
     //thread is exclusive, and runs until another queue enters the readyqueue
-    if(!_readyQueue.empty())
+    if(!_readyQueue.isEmpty())
     {
         changeThreadQueue(_readyQueue.pop(), Running);
     }
@@ -251,6 +245,12 @@ int Scheduler::resumeThread(Thread * thread)
 
 int Scheduler::suspendThread(Thread * thread)
 {
+    //Save current running thread environment
+    int tempVal = sigsetjmp(getRunningThread()->_env, 1);
+    if(tempVal == 1)
+    {
+            return OK;
+    }
     //Sanity check, maybe redundant 
     if(thread->getState() == Suspended)
     {
@@ -269,7 +269,8 @@ int Scheduler::suspendThread(Thread * thread)
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
     }
     
-    
+    //jump to running thread environment
+    siglongjmp(getRunningThread()->_env, 1);
     return OK;
 }
 
@@ -277,7 +278,6 @@ int Scheduler::suspendThread(Thread * thread)
 
 int Scheduler::terminateThread(Thread * thread)
 {
-    
     bool isRunning = (thread->getState() == Running);
     Thread::RemoveID(thread->getID());
     _threadMap.erase(thread->getID());
@@ -286,6 +286,11 @@ int Scheduler::terminateThread(Thread * thread)
         schedulerTick(SIG_SPEC_ALRM); //Manually call the scheduler tick
         siglongjmp(getRunningThread()->_env, 1);
     }
+    else
+    {
+        changeThreadQueue(thread, Terminated);
+    }
+    delete thread;
     return OK;
 }
 
@@ -304,6 +309,14 @@ void Scheduler::changeThreadQueue(Thread * thread, State newState)
         case Suspended:
             _suspendedQueue.pop(thread);
             break;
+        case Terminated: //Irrelevant
+            break;
+    }
+    
+    //If the thread is being terminated then just remove it from the queue
+    if(newState == Terminated)
+    {
+        return;
     }
     
     // Update new state.
@@ -331,7 +344,7 @@ void Scheduler::changeRunningThread(Thread * newThread)
     }
     //Move the new thread into the running state
     _runningThreadID = newThread->getID();
-    newThread->increaseTotalQuantums(1); //Check if need += quantum value
+    newThread->increaseTotalQuantums(1);
 }
 
 int Scheduler::getRunningThreadID()
@@ -356,4 +369,20 @@ void Scheduler::setTimerIntervals(int quantums)
     _tv.it_interval.tv_sec = quantums / USECS_TO_SEC;
     _tv.it_interval.tv_usec = quantums;
     
+}
+
+Scheduler::~Scheduler()
+{
+    Thread * temp = nullptr;
+    for(auto iterator = _threadMap.begin(); iterator != _threadMap.end(); 
+        ++iterator)
+    {
+        temp = iterator->second;
+        delete temp;
+        temp = nullptr;
+        iterator->second = nullptr;
+    }
+    _threadMap.clear();
+    _readyQueue.empty();
+    _suspendedQueue.empty();
 }

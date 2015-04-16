@@ -20,6 +20,7 @@
 #ifndef THREADUTILS_H
 #define	THREADUTILS_H
 
+#include <string>
 
 /**
  * An enum that saves an error code, it is used throughout the scheduler class
@@ -40,6 +41,7 @@ enum State
     Running = 0,
     Ready = 1,
     Suspended = 2,
+    Terminated = 3,
 };
 
 /*

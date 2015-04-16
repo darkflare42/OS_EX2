@@ -40,29 +40,26 @@ int uthread_suspend(int tid)
     if(thread == nullptr)
     {
         gCurrSched->unblockSignals();
+        thread = nullptr;
         return FAIL;
     }
     
     if(thread->getState() == Suspended)
     {
         gCurrSched->unblockSignals();
+        thread = nullptr;
         return OK;
     }
     else
     {
         gCurrSched->unblockSignals();
-        int tempVal = sigsetjmp(gCurrSched->getRunningThread()->_env, 1);
-        if(tempVal == 1)
-        {
-            return OK;
-        }
-
         gCurrSched->suspendThread(thread);
-        siglongjmp(gCurrSched->getRunningThread()->_env, 1);
+        thread = nullptr;
         return OK;
-        
     }
+    //unblocking signals just in case
     gCurrSched->unblockSignals();
+    thread = nullptr;
     return OK;
 }
 
@@ -74,6 +71,7 @@ int uthread_resume(int tid)
         return FAIL;
     }
     int errCode =  gCurrSched->resumeThread(thread);
+    thread = nullptr;
     return errCode;
 }
 
@@ -90,12 +88,14 @@ int uthread_terminate(int tid)
     //We are terminating the main thread
     if(tid == 0)
     {
+        thread = nullptr;
         delete gCurrSched; //TODO: add proper destructor for scheduler
         exit(0);
     }
     
     int errCode =  gCurrSched->terminateThread(thread);
     gCurrSched->unblockSignals();
+    thread = nullptr;
     return errCode;
 }
 
@@ -116,5 +116,7 @@ int uthread_get_quantums(int tid)
     {
         return FAIL;
     }
-    return thread->getTotalQuantums();  
+    int quantums = thread->getTotalQuantums();
+    thread = nullptr;
+    return quantums;
 }

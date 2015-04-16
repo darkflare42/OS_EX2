@@ -61,13 +61,18 @@ public:
     * Check if the queue is empty.
     * @return True iff the queue is empty.
     */
-    bool empty();
+    bool isEmpty();
     
     /**
     * Check the number of elements in the queue.
     * @return Number of elements.
     */
     int size();
+    
+    /**
+    * This function empties the internal queues
+    */
+    void empty();
     
 private:
     std::list<Thread *> _redQ;

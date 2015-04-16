@@ -116,7 +116,7 @@ public:
 private:
     
     int _id;
-    int _totalQuantums;
+    int _threadQuantums;
     Priority _prio;
     State _currState;
     void (*_entry)(void);

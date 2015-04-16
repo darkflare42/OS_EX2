@@ -338,6 +338,8 @@ void Scheduler::changeThreadQueue(Thread * thread, State newState)
         case Suspended:
             _suspendedQueue.push(thread);
             break;
+        case Terminated:
+            break;
     }
 }
 

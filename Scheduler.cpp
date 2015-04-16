@@ -4,7 +4,7 @@
 using namespace std;
 
 Scheduler::Scheduler():
-    _totalQuantums(0)
+    _totalQuantums(1)
 {
 }
 
@@ -12,23 +12,18 @@ int Scheduler::init(int quantum)
 {
     if(quantum <= 0)
     {
-        cerr << "" + THREADLIB_ERROR << " " << USECS_ERROR << endl;
-        return FAIL;
+        //cerr << "" + THREADLIB_ERROR << " " << USECS_ERROR << endl;
+        throw std::logic_error(THREADLIB_ERROR + " " + USECS_ERROR);
     }
     
-    try
-    {    
-        setTimerIntervals(quantum);
-        Thread::InitiateIDList(); 
-        _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
-        _threadMap.insert({0, (new Thread(MAIN_THREAD_ID, ORANGE, NULL))});
-        _threadMap[0]->setState(Running);
-        startTimer();
-    }
-    catch(...)
-    {
-        return FAIL;
-    }
+
+    setTimerIntervals(quantum);
+    Thread::InitiateIDList(); 
+    _runningThreadID = Thread::NewID(); //Set the running ID Thread to 0
+    _threadMap.insert({0, (new Thread(MAIN_THREAD_ID, ORANGE, NULL))});
+    _threadMap[0]->setState(Running);
+    startTimer();
+   
     
     return OK;
 }
@@ -49,9 +44,8 @@ void Scheduler::startTimer()
     //in the call to setitimer
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL))
     {
-        cerr << SETTIMER_ERROR << endl;
-        throw std::invalid_argument(SETTIMER_ERROR);
-        
+        //cerr << SETTIMER_ERROR << endl;
+        throw std::logic_error(SETTIMER_ERROR);
     }
 }
 
@@ -86,7 +80,8 @@ void Scheduler::resetTimer()
     //Forcefully stop the timer
     if(setitimer(ITIMER_VIRTUAL, NULL, NULL))
     {
-        cerr << SETTIMER_ERROR << endl;
+        //cerr << SETTIMER_ERROR << endl;
+        throw std::logic_error(SETTIMER_ERROR);
     }
     
     //If the alarm signal is pending
@@ -99,19 +94,22 @@ void Scheduler::resetTimer()
         //Empty the set
         if(sigemptyset(&pendingSet))
         {
-            cerr << EMPTYSET_ERROR << endl;
+            //cerr << EMPTYSET_ERROR << endl;
+            throw std::logic_error(EMPTYSET_ERROR);
         }
         
         //Insert SIGVTALRM
         if(sigaddset(&pendingSet, SIGVTALRM))
         {
-            cerr << ADDSET_ERROR << endl;
+            //cerr << ADDSET_ERROR << endl;
+            throw std::logic_error(ADDSET_ERROR);
         }
         
         //Wait for the signal to "jump", i.e remove it from pending
         if(sigwait(&pendingSet, &signal))
         {
-            cerr << WAIT_ERROR << endl;
+            //cerr << WAIT_ERROR << endl;
+            throw std::logic_error(WAIT_ERROR);
         }
         
     }
@@ -119,7 +117,8 @@ void Scheduler::resetTimer()
     //Start the timer again
     if(setitimer(ITIMER_VIRTUAL, &_tv, NULL))
     {
-        cerr << SETTIMER_ERROR << endl;
+        //cerr << SETTIMER_ERROR << endl;
+        throw std::logic_error(SETTIMER_ERROR);
     }
    
 }
@@ -133,7 +132,8 @@ int Scheduler::isAlrmPending()
     //Get the pending signals set
     if(sigpending(&set))
     {
-        cerr << PENDING_ERROR << endl;
+        //cerr << PENDING_ERROR << endl;
+        throw std::logic_error(PENDING_ERROR);
     }
     
     //This checks if SIGVTALRM is in the pending set
@@ -141,7 +141,8 @@ int Scheduler::isAlrmPending()
     //This occurs if there was an error with sigismember
     if(sigAlrmPending == -1)
     {
-        cerr << ISMEMBER_ERROR << endl;
+        //cerr << ISMEMBER_ERROR << endl;
+        throw std::logic_error(ISMEMBER_ERROR);
     }
     
     return sigAlrmPending;
@@ -156,19 +157,22 @@ void Scheduler::blockSignals()
     //Empty the mask
     if(sigemptyset(&tempMask))
     {
-        cerr << EMPTYSET_ERROR << endl;
+        //cerr << EMPTYSET_ERROR << endl;
+        throw std::logic_error(EMPTYSET_ERROR);
     }
     
     //Add the SIGVTALRM to the set
     if(sigaddset(&tempMask, SIGVTALRM))
     {
-        cerr << ADDSET_ERROR << endl;
+        //cerr << ADDSET_ERROR << endl;
+        throw std::logic_error(ADDSET_ERROR);
     }
     
     //Block the mask, and save the old blocked signals in _mask
     if(sigprocmask(SIG_SETMASK, &tempMask, &_mask))
     {
-        cerr << PROC_ERROR << endl;
+        //cerr << PROC_ERROR << endl;
+        throw std::logic_error(PROC_ERROR);
     }
 }
 
@@ -178,7 +182,8 @@ void Scheduler::unblockSignals()
 {
     if(sigprocmask(SIG_SETMASK, &_mask, NULL))
     {
-        cerr << PROC_ERROR << endl;
+        //cerr << PROC_ERROR << endl;
+        throw std::logic_error(PROC_ERROR);
     }
 }
 
@@ -212,8 +217,9 @@ Thread * Scheduler::getThread(int tid)
     }
     else 
     {
-        cerr << THREADLIB_ERROR << " " << NO_THREAD_ERROR << endl;
+        //cerr << THREADLIB_ERROR << " " << NO_THREAD_ERROR << endl;
         thread = nullptr;
+        throw std::logic_error(THREADLIB_ERROR + " " + NO_THREAD_ERROR);
     }
     return thread;
     
@@ -224,8 +230,8 @@ int Scheduler::spawnThread(void(*f)(), Priority pr)
     int newID = Thread::NewID();
     if(newID == FAIL)
     {
-        cerr << THREADLIB_ERROR << " " << MAX_THREADS_ERROR << endl;
-        return FAIL;
+        //cerr << THREADLIB_ERROR << " " << MAX_THREADS_ERROR << endl;
+        throw std::logic_error(THREADLIB_ERROR + " " + MAX_THREADS_ERROR);
     }
     _threadMap.insert({newID, (new Thread(newID, pr, f))});
     _readyQueue.push(_threadMap[newID]);
